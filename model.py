@@ -61,11 +61,12 @@ class AttentionAspectionExtraction(nn.Module):
         review_h, _ = self.encoder( review )
         review_h, _ = pad_packed_sequence( review_h, batch_first= True, padding_value= 0.0 )
 
-        alpha = torch.nn.functional.softmax( torch.tanh( torch.bmm( torch.matmul( review_h, self.weight_m ), torch.transpose(review_h, 1, 2)  ) + self.bias_m ) , dim= 1 )
+        # alpha = torch.nn.functional.softmax( torch.tanh( torch.bmm( torch.matmul( review_h, self.weight_m ), torch.transpose(review_h, 1, 2)  ) + self.bias_m ) , dim= 1 )
         
-        s_i = torch.bmm( alpha, review_h )
+        # s_i = torch.bmm( alpha, review_h )
         
-        x = self.w_r( s_i )
+        # x = self.w_r( s_i )
+        x = self.w_r( review_h )
         x = nn.functional.softmax(x, dim= 2)
 
         return x

@@ -1,3 +1,4 @@
+import sys
 import os
 import torch
 from torch import tensor
@@ -9,7 +10,7 @@ from sklearn.metrics import precision_recall_fscore_support, accuracy_score
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
 import config
-from data_utils import ReviewDataset, Vocab, Review, subfinder, generate_bio_tags, create_embedding_matrix
+from data_utils import ReviewDataset, Vocab, Review, subfinder, generate_bio_tags, create_embedding_matrix, compute_accuracy
 from model import AttentionAspectionExtraction
 
 
@@ -75,23 +76,25 @@ class Trainer:
                 batch['original_review_length'] = batch['original_review_length'].to( self.device )
                 batch[ 'aspect_tokens' ] = batch[ 'aspect_tokens' ].to( self.device )
                 batch['original_aspect_length'] = batch['original_aspect_length'].to( self.device )
-
+                print(targets.shape)
                 outputs = self.model( batch )
-                outputs = torch.argmax( outputs, dim= 1 ).to('cpu')
-                targets = torch.argmax( targets, dim= 1 ).to('cpu')
-                
+                outputs = torch.argmax( outputs, dim= 2 ).to('cpu')
+                targets = torch.argmax( targets, dim= 2 ).to('cpu')
+
                 # precision, recall, f_score, support = precision_recall_fscore_support( targets, outputs )
                 accuracy = 0.0
+                precision, recall, f_score = 0.0, 0.0, 0.0
                 for row in zip(outputs, targets):
-                    accuracy += accuracy_score( row[0], row[1] )
-                print( accuracy/outputs.shape[0] ) 
-                input()
-                # print('precision ', precision, ' recall ', recall, ' f-score ', f_score, ' support ', support, ' accuracy ', accuracy*100 )
-                print(' accuracy ', accuracy*100)
+                    accuracy += compute_accuracy(row[1], row[0])
+
+                print(' accuracy ', accuracy / outputs.shape[0] *100)
+                input() 
+                # print('precision ', precision/outputs.shape[0], ' recall ', recall/outputs.shape[0], ' f-score ', f_score/outputs.shape[0], ' accuracy ', accuracy*100 )
+
                 
                 if path_save_best_model != None: # implicit assumption: if this is given then you want to save the model
                     if current_best == None or current_best < accuracy:
-                        print('saving model with accuracy: ', accuracy)
+                        print('saving model with accuracy: ', accuracy / outputs.shape[0] *100)
                         torch.save( self.model.state_dict(), path_save_best_model )
 
             return accuracy

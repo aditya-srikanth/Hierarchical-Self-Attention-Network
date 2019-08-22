@@ -16,6 +16,10 @@ except Exception as e:
     print('cElementTree not present')
     import xml.etree.ElementTree
 
+def compute_accuracy(x,y):
+    match = [ i for i in zip(x,y) if (i[0] == i[1] and ( i[0] != 2 and i[1] != 2 )) ]
+    return len(match) / n 
+
 def create_embedding_matrix( vocab, embedding_dim, device= config.device, dataset_path= None, save_weight_path= None):
     num_tokens = vocab.get_vocab_size()
     word2idx = vocab.get_vocab()
@@ -92,8 +96,7 @@ def parse_xml(file_path):
 
                 aspects.append( aspect )
                 
-            for i in range( len( aspects ) ):
-                review_list.append( Review( child.attrib['id'], sentence, aspects[i] ) )
+            review_list.append( Review( child.attrib['id'], sentence, aspects ) )
         else:
                 num_no_aspect_sentences += 1
                 continue
@@ -127,7 +130,7 @@ class Review:
     def __init__( self, review_id, text, aspect_term='None' ):
         assert isinstance(review_id,str)
         assert isinstance(text, str)
-        assert isinstance(aspect_term, str)
+        assert isinstance(aspect_term, list( str ) )
         
         self.review_id = review_id
         self.text = text
@@ -135,7 +138,7 @@ class Review:
         
         self.tokenized_text = [] # tokenized after the Dataset is parsed by the Vocab
         self.aspect_term_tokens = []
-        self.aspect_positions = [-1,-1] # populated after the Vocab is generated
+        self.aspect_positions = [(-1,-1)] # populated after the Vocab is generated
     
     def __str__(self):
         return str(self.__dict__)
@@ -166,16 +169,15 @@ class ReviewDataset(Dataset):
                     
             with open( dataset_path, 'r' ) as f:
                 for line in f.readlines()[1:]:
-
                     line = line.strip().split('\t')
                     review_id = line.pop(0)
                     review_text = line.pop(0)
-                    aspect_term = line.pop(0)
+                    aspect_term = line
                     
                     self.review_list.append( Review( review_id, review_text, aspect_term ) )
             print('loading file complete')
         
-        self.tokenizer = Vocab(self.review_list) if vocab == None else vocab
+        self.tokenizer = Vocab( self.review_list ) if vocab == None else vocab
         
         for review in self.review_list:
             review.tokenized_text = self.tokenizer.convert_text_to_sequence_numbers( review.text )
