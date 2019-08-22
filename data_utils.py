@@ -111,26 +111,16 @@ def subfinder(mylist, pattern):
 def generate_bio_tags( start_end_indices, max_length):
     
     if start_end_indices == None:
-        return [ 0 ] * max_length
+        return tensor([ [ 0.0, 0.0, 0.0 ] ] * max_length)
 
     start_index = start_end_indices[ 0 ]
     end_index = start_end_indices[ 1 ]
     
     if start_index == end_index == -1:
-        return [ 0 ] * max_length 
+        return tensor([ [ 0.0, 0.0, 0.0 ] ] * max_length)        
 
-    bio_tags = [ 0 ] * max_length
-
-    bio_tags[ start_index ] = 1
-
-    if start_index < end_index:
-        bio_tags[start_index + 1: end_index + 1] = [ 2 ]*(end_index - start_index)
-    
-    bio_tags = tensor( bio_tags )
-
-    y = torch.eye(3).float()
-    print(y[bio_tags])
-    return y[bio_tags].float() 
+    bio_tags =  [ [ 0.0, 0.0, 0.0 ] ] * ( start_index ) + [ [ 0.0, 1.0, 0.0 ] ] + [ [ 0.0, 0.0, 1.0 ] ] * (end_index - start_index ) + [ [ 0.0, 0.0, 0.0 ] ] * ( max_length - end_index - 1 )
+    return tensor( bio_tags )
 
 
 class Review:
@@ -227,13 +217,14 @@ class ReviewDataset(Dataset):
         data_item = self.review_list[idx]
         padded_review, original_review_length = self.tokenizer.pad_sequence( data_item.tokenized_text, self.max_review_length )
         padded_aspect, original_aspect_length = self.tokenizer.pad_sequence( data_item.aspect_term_tokens, self.max_aspect_length )
+        bio_tags = generate_bio_tags( data_item.aspect_positions, self.max_review_length )
         
         item = {    
                     'review': padded_review,
                     'original_review_length': original_review_length,
                     'aspect_tokens': padded_aspect,
                     'original_aspect_length': original_aspect_length,
-                    'bio_tags': generate_bio_tags( data_item.aspect_positions, self.max_review_length )
+                    'bio_tags': bio_tags
                 }
 
         return item # convert Record class into dictionary for torch.Dataset to operate

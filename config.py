@@ -11,8 +11,8 @@ model_save_path = './model_weights/PBAN.pt'
 
 
 bio_dict = { 'O':0, 'B':1, 'I':2 }
-device = 'cuda'
-# device = 'cpu'
+# device = 'cuda'
+device = 'cpu'
 
 # hyper parameters.
 batch_size = 64
