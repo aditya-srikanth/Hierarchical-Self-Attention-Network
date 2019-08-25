@@ -15,7 +15,7 @@ bio_dict = { 'O':0, 'B':1, 'I':2 }
 device = 'cpu'
 
 # hyper parameters.
-batch_size = 64
+batch_size = 2
 num_dataset_workers = 2
 
 word_embeding_dim = 300

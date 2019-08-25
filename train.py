@@ -10,7 +10,7 @@ from sklearn.metrics import precision_recall_fscore_support, accuracy_score
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
 import config
-from data_utils import ReviewDataset, Vocab, Review, subfinder, generate_bio_tags, create_embedding_matrix, compute_accuracy
+from data_utils import ReviewDataset, Vocab, Review, subfinder, generate_bio_tags, create_embedding_matrix
 from model import AttentionAspectionExtraction
 
 
@@ -39,8 +39,6 @@ class Trainer:
                 batch['original_review_length'], perm_idx = batch['original_review_length'].sort( 0, descending= True )
                 batch[ 'review' ] = batch[ 'review' ][ perm_idx ]
                 batch[ 'bio_tags' ] = batch[ 'bio_tags' ][ perm_idx ]
-                batch[ 'aspect_tokens' ] = batch[ 'aspect_tokens' ][ perm_idx ]
-                batch['original_aspect_length'] = batch['original_aspect_length'][ perm_idx ]
                 
                 targets = batch[ 'bio_tags' ].to( self.device )
                 targets = pack_padded_sequence(targets, batch['original_review_length'], batch_first= True)
@@ -48,8 +46,6 @@ class Trainer:
                 
                 batch[ 'review' ] = batch[ 'review' ].to( self.device )
                 batch['original_review_length'] = batch['original_review_length'].to( self.device )
-                batch[ 'aspect_tokens' ] = batch[ 'aspect_tokens' ].to( self.device )
-                batch['original_aspect_length'] = batch['original_aspect_length'].to( self.device )
 
                 outputs = self.model( batch )
 
@@ -68,15 +64,11 @@ class Trainer:
                 batch['original_review_length'], perm_idx = batch['original_review_length'].sort( 0, descending= True )
                 batch[ 'review' ] = batch[ 'review' ][ perm_idx ]
                 batch[ 'bio_tags' ] = batch[ 'bio_tags' ][ perm_idx ]
-                batch[ 'aspect_tokens' ] = batch[ 'aspect_tokens' ][ perm_idx ]
-                batch['original_aspect_length'] = batch['original_aspect_length'][ perm_idx ]
                 
                 targets = batch[ 'bio_tags' ].to( self.device )
                 batch[ 'review' ] = batch[ 'review' ].to( self.device )
                 batch['original_review_length'] = batch['original_review_length'].to( self.device )
-                batch[ 'aspect_tokens' ] = batch[ 'aspect_tokens' ].to( self.device )
-                batch['original_aspect_length'] = batch['original_aspect_length'].to( self.device )
-                print(targets.shape)
+
                 outputs = self.model( batch )
                 outputs = torch.argmax( outputs, dim= 2 ).to('cpu')
                 targets = torch.argmax( targets, dim= 2 ).to('cpu')
@@ -85,9 +77,10 @@ class Trainer:
                 accuracy = 0.0
                 precision, recall, f_score = 0.0, 0.0, 0.0
                 for row in zip(outputs, targets):
-                    accuracy += compute_accuracy(row[1], row[0])
+                    accuracy += accuracy_score(row[1], row[0])
+                    
+                print(' accuracy ', accuracy / outputs.shape[0])
 
-                print(' accuracy ', accuracy / outputs.shape[0] *100)
                 input() 
                 # print('precision ', precision/outputs.shape[0], ' recall ', recall/outputs.shape[0], ' f-score ', f_score/outputs.shape[0], ' accuracy ', accuracy*100 )
 
@@ -118,7 +111,7 @@ if __name__ == "__main__":
                     torch.nn.init.uniform_(p, a=-stdv, b=stdv)
 
     loss_function = nn.BCELoss()
-    optimizer = torch.optim.Adam(model.parameters(), weight_decay=1e-5)
+    optimizer = torch.optim.Adam(model.parameters())
 
     trainer = Trainer(model, train_dataset, test_dataset, loss_function, optimizer )
     trainer.run(1000, config.model_save_path )

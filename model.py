@@ -21,7 +21,7 @@ class AttentionAspectionExtraction(nn.Module):
         self.embedding = nn.Embedding.from_pretrained( create_embedding_matrix(vocab, self.embedding_dim) )
         self.output_dim = output_dim
         
-        rnn_model = kwargs.get('rnn_model','gru')
+        rnn_model = kwargs.get('rnn_model','lstm')
         if rnn_model == 'gru':   
             self.encoder = nn.GRU(
                                     self.embedding_dim,
@@ -49,14 +49,9 @@ class AttentionAspectionExtraction(nn.Module):
         
         review = inputs[ 'review' ]
         review_lengths = inputs['original_review_length']
-        aspect_tokens = inputs[ 'aspect_tokens' ]
-        aspect_length = inputs['original_aspect_length']
 
         review = self.embedding( review )
-        aspect_tokens = self.embedding( aspect_tokens )
-
         review = pack_padded_sequence(review, review_lengths, batch_first= True, enforce_sorted= False)
-        aspect_tokens = pack_padded_sequence( aspect_tokens, aspect_length, batch_first= True, enforce_sorted= False)
 
         review_h, _ = self.encoder( review )
         review_h, _ = pad_packed_sequence( review_h, batch_first= True, padding_value= 0.0 )

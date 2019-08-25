@@ -122,13 +122,11 @@ def generate_bio_tags( start_end_indices, max_length):
     for aspect_position in start_end_indices:
         start_index = aspect_position[ 0 ]
         end_index = aspect_position[ 1 ]
-        num_I_tags = end_index - start_index
 
         tags[ start_index,: ] = tensor( [ 0.0, 1.0, 0.0 ] )
         tags[ start_index+1:end_index+1, : ] = tensor([ 0.0, 0.0, 1.0 ])
-        print(tags)
 
-    return tensor( tags )
+    return tags
 
 
 class Review:
