@@ -11,11 +11,11 @@ model_save_path = './model_weights/PBAN.pt'
 
 
 bio_dict = { 'O':0, 'B':1, 'I':2 }
-# device = 'cuda'
-device = 'cpu'
+device = 'cuda'
+# device = 'cpu'
 
 # hyper parameters.
-batch_size = 2
+batch_size = 32
 num_dataset_workers = 2
 
 word_embeding_dim = 300
@@ -23,7 +23,6 @@ hidden_dim = 200
 bidirectiional = True
 num_layers = 1
 dropout = 0.5 if num_layers > 1 else 0
-polarity_dim = 3
 
 
 # will be updated when the dataset is processed

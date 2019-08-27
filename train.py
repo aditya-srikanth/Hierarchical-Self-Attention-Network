@@ -72,16 +72,15 @@ class Trainer:
                 outputs = self.model( batch )
                 outputs = torch.argmax( outputs, dim= 2 ).to('cpu')
                 targets = torch.argmax( targets, dim= 2 ).to('cpu')
-
-                # precision, recall, f_score, support = precision_recall_fscore_support( targets, outputs )
+                
                 accuracy = 0.0
-                precision, recall, f_score = 0.0, 0.0, 0.0
+
                 for row in zip(outputs, targets):
                     accuracy += accuracy_score(row[1], row[0])
                     
-                print(' accuracy ', accuracy / outputs.shape[0])
+                print( ' accuracy ', accuracy / outputs.shape[0] * 100 )
 
-                input() 
+                # input() 
                 # print('precision ', precision/outputs.shape[0], ' recall ', recall/outputs.shape[0], ' f-score ', f_score/outputs.shape[0], ' accuracy ', accuracy*100 )
 
                 
@@ -110,7 +109,7 @@ if __name__ == "__main__":
                     stdv = 1. / (p.shape[0]**0.5)
                     torch.nn.init.uniform_(p, a=-stdv, b=stdv)
 
-    loss_function = nn.BCELoss()
+    loss_function = nn.KLDivLoss()
     optimizer = torch.optim.Adam(model.parameters())
 
     trainer = Trainer(model, train_dataset, test_dataset, loss_function, optimizer )

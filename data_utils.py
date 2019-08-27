@@ -66,25 +66,25 @@ def parse_xml(file_path):
     for child in root:
         sentence = child.find('text').text
         sentence = sentence.strip()
-        sentence = re.sub('\t',' ',sentence)
-        sentence = re.sub('[^a-zA-Z0-9 !@#$%^&*()-_=+~`\'\":;.,/?]', '',sentence).lower()
+        sentence = re.sub(r'[\t]',' ',sentence)
+        sentence = re.sub(r'[^a-zA-Z0-9 !@#$%^&*()-_=+~`\'\":;.,/?]', '',sentence).lower()
         
         
         for ch in ["\'s", "\'ve", "n\'t", "\'re", "\'m", "\'d", "\'ll", ",", ".", "!", "*", "/", "?", "(", ")", "\"", "-", ":"]:
             sentence = sentence.replace(ch, " " + ch + " ")
             
-        sentence = ' '.join(sentence.split())
+        sentence = ' '.join( sentence.split() )
 
         aspect_terms = child.find('aspectTerms')
+
         if aspect_terms != None:
-            aspects = []
         
+            aspects = []
             for i in aspect_terms:
                 
                 aspect = i.attrib['term'].strip()
-                
-                aspect = re.sub('\t',' ',aspect)
-                aspect = re.sub('[^a-zA-Z0-9 !@#$%^&*()-_=+~`\'\":;.,/?]', '',aspect).lower()
+                aspect = re.sub(r'\t',' ',aspect)
+                aspect = re.sub(r'[^a-zA-Z0-9 !@#$%^&*()-_=+~`\'\":;.,/?]', '', aspect).lower()
                 
                 for ch in ["\'s", "\'ve", "n\'t", "\'re", "\'m", "\'d", "\'ll", ",", ".", "!", "*", "/", "?", "(", ")", "\"", "-", ":"]:
                     aspect = aspect.replace(ch, " " + ch + " ")
@@ -104,29 +104,24 @@ def parse_xml(file_path):
     return review_list
 
 def subfinder(mylist, pattern):
-    if pattern == None: # when there are no aspect terms
-        return None
-
     for i in range(len(mylist)):
         if mylist[i] == pattern[0] and mylist[i:i+len(pattern)] == pattern:
             return ( i, i+len(pattern) - 1 )
-    print('not found!!', mylist, pattern)
-    import sys 
-    sys.exit(0)
+
 def generate_bio_tags( start_end_indices, max_length):
-    tags = tensor([ [ 0.0, 0.0, 0.0 ] ] * max_length) 
+
+    bio_tags = tensor([ [ 0.0, 0.0, 0.0 ] ] * max_length)
     
     if start_end_indices == None or len( start_end_indices ) == 0:
-        return tags
+        return bio_tags
+ 
+    for indices in start_end_indices:
 
-    for aspect_position in start_end_indices:
-        start_index = aspect_position[ 0 ]
-        end_index = aspect_position[ 1 ]
+        start_index = indices[ 0 ]
+        end_index = indices[ 1 ]
+        bio_tags[ start_index:end_index + 1,: ] =   tensor([ [ 0.0, 1.0, 0.0 ] ] + [ [ 0.0, 0.0, 1.0 ] ] * (end_index - start_index ))
 
-        tags[ start_index,: ] = tensor( [ 0.0, 1.0, 0.0 ] )
-        tags[ start_index+1:end_index+1, : ] = tensor([ 0.0, 0.0, 1.0 ])
-
-    return tags
+    return bio_tags
 
 
 class Review:
@@ -136,11 +131,11 @@ class Review:
         
         self.review_id = review_id
         self.text = text
-        self.aspect_term = aspect_term
+        self.aspect_terms = aspect_term
         
         self.tokenized_text = [] # tokenized after the Dataset is parsed by the Vocab
         self.aspect_term_tokens = []
-        self.aspect_positions = [] # populated after the Vocab is generated
+        self.aspect_positions = [] # populated after the Vocab is generated, contains a tuple of start index and end index
     
     def __str__(self):
         return str(self.__dict__)
@@ -159,9 +154,10 @@ class ReviewDataset(Dataset):
     
         self.device = device
         self.max_review_length = -1
+        self.max_aspect_length = -1
 
         if not preprocessed:
-            self.review_list = parse_xml( dataset_path )
+            self.review_list = parse_xml(dataset_path)
 
         else:
             self.review_list = []
@@ -173,37 +169,52 @@ class ReviewDataset(Dataset):
                     line = line.strip().split('\t')
                     review_id = line.pop(0)
                     review_text = line.pop(0)
-                    aspect_terms = line if len( line ) > 0 else None          # remaining are aspect terms, if present 
+                    aspect_term = line if len( line ) > 0 else None          # remaining everything are the aspect terms
                     
-                    self.review_list.append( Review( review_id, review_text, aspect_terms ) )
+                    self.review_list.append( Review( review_id, review_text, aspect_term ) )
             print('loading file complete')
         
         self.tokenizer = Vocab( self.review_list ) if vocab == None else vocab
+        
         for review in self.review_list:
+            
             review.tokenized_text = self.tokenizer.convert_text_to_sequence_numbers( review.text )
-            if review.aspect_term != None:
-                aspect_term_tokens = []
-                aspect_term_positions = []
-                for aspect in review.aspect_term:
-                    aspect_tokens = self.tokenizer.convert_text_to_sequence_numbers( aspect )
-                    aspect_term_tokens.append( aspect_tokens )
-                    aspect_term_positions.append( subfinder( review.tokenized_text, aspect_tokens ))
+            
+            if review.aspect_terms != None:
+                aspect_terms_tokens = []
+                aspect_terms_positions = []
+                for aspect in review.aspect_terms:
 
-                review.set_aspect_term_tokens( aspect_term_tokens ) 
-                review.set_aspect_term_positions( aspect_term_positions ) 
+                    aspect_term_tokens = self.tokenizer.convert_text_to_sequence_numbers( aspect )
+                    aspect_term_positions = subfinder( review.tokenized_text, aspect_term_tokens )
+                    if aspect_term_positions == None:
+                        import sys
+                        print(review, aspect_term_tokens, aspect_term_positions,self.tokenizer.convert_sequence_numbers_to_text(aspect_term_tokens),self.tokenizer.convert_sequence_numbers_to_text(review.tokenized_text))
+                        sys.exit()
+                    aspect_terms_tokens.append( aspect_term_tokens )
+                    aspect_terms_positions.append( aspect_term_positions )
 
-            self.max_review_length = max( len( review.tokenized_text ), self.max_review_length ) 
+                    self.max_aspect_length = max( len( aspect_term_tokens ), self.max_aspect_length )
+                
+                review.set_aspect_term_tokens( aspect_terms_tokens ) 
+                review.set_aspect_term_positions( aspect_terms_positions ) 
+
+                self.max_review_length = max( len( review.tokenized_text ), self.max_review_length )
+
+            else:
+                # this technically won't be used ever... coz we're filtering out sentences without tokens
+                self.max_review_length = max( len( review.tokenized_text ), self.max_review_length ) 
+                self.max_aspect_length = max( 1, self.max_aspect_length )
 
     def write_to_file(self, filepath ):
         print('writing to file')
         with open( filepath, 'w' ) as f:
-            f.write('review_id'+ config.sep +'review_text'+ config.sep +'aspect_term\n')
+            f.write('review_id'+ config.sep +'review_text'+ config.sep +'aspect_terms\n')
             for review in self.review_list:
                 f.write( review.review_id + config.sep + review.text + config.sep )
-                if review.aspect_term != None:
-                    f.write('\t'.join( review.aspect_term ))
+                if review.aspect_terms != None:
+                    f.write( '\t'.join(review.aspect_terms) )
                 f.write('\n')
-                
         print("finished writing")
     
     def get_vocab(self):
@@ -232,7 +243,6 @@ class ReviewDataset(Dataset):
 class Vocab:
 
     def __init__( self, texts ):
-    
         """
         :type texts: list of strings or Records
         :param texts: text of the reviews is either directly given or is extracted from the objects 
@@ -257,23 +267,21 @@ class Vocab:
         if isinstance( texts[0], str ):
             for doc in self.tokenizer.pipe( texts, batch_size= 100 ):
                 for token in doc:
-                    if not token.text in self.word_to_idx and (token.text != ' ' and token.text != '\n'):
+                    if not token.text in self.word_to_idx:
                         self.word_to_idx[ token.text ] = self.size_of_vocab 
                         self.index_to_word[ self.size_of_vocab ] = token.text
                         self.size_of_vocab += 1
-                        if self.size_of_vocab == 16:
-                            print(self.word_to_idx)
-                            import sys 
-                            sys.exit()
+                          
             
         elif isinstance( texts[0], Review ):
             for review in texts:
                 tokens = self.tokenizer( review.text )
                 for token in tokens:
-                    if not token.text in self.word_to_idx and token.text != ' ' and token.text != '\n':
+                    if not token.text in self.word_to_idx:
                         self.word_to_idx[ token.text ] = self.size_of_vocab 
                         self.index_to_word[ self.size_of_vocab ] = token.text
                         self.size_of_vocab += 1
+        
         else:
             raise Exception('input should be a list of stings or a list of Review objects')
 
@@ -290,7 +298,6 @@ class Vocab:
         return self.size_of_vocab
 
     def convert_text_to_sequence_numbers(self, reviews):
-    
         """ 
         :type reviews: list of strings or a string
         :param reviews: review's text
@@ -306,10 +313,10 @@ class Vocab:
                 review_sequences = []
                 for token in self.tokenizer( review ):
                     # sequence numbers are generated only for those sentences that are present in the vocab
-                    if token.text in self.word_to_idx and token.text != ' ' and token.text != '\n':
+                    if token.text in self.word_to_idx:
                         num_tokens += 1
                         review_sequences.append( self.word_to_idx[ token.text ] )
-                    elif token.text not in self.word_to_idx and token.text != ' ' and token.text != '\n':
+                    else:
                         num_unk_tokens += 1
                         review_sequences.append( self.word_to_idx[ '<unk>' ] )
 
@@ -328,7 +335,6 @@ class Vocab:
             return review_sequences
             
     def convert_sequence_numbers_to_text( self, reviews_sequences ):
-    
         """ Converts list of sequence numbers to text
 
         :type reviews_sequences: list(list(int)) OR list(int)
@@ -348,6 +354,7 @@ class Vocab:
             return review
 
     def has_word(self, word):
+
         return word in self.word_to_idx
 
     def pad_sequence(self, input_sequence, length, padding= 'post', pad_character='<pad>'):
@@ -363,7 +370,6 @@ class Vocab:
 
     @classmethod
     def from_files( cls, file_list ):
-
         texts = []
         for file_name in file_list:
             print(file_name)
@@ -381,10 +387,10 @@ if __name__ == "__main__":
     dataset.write_to_file('./datasets/test_data.tsv')
 
 
-    dataloader = DataLoader(dataset, batch_size= 8, shuffle= True, num_workers= 4)
+    dataloader = DataLoader(dataset, batch_size= 8, shuffle= True, num_workers= 1)
 
     # testing
     for i,batch in enumerate(dataloader):
         print('i', i)
-        pprint(batch)
+        # pprint(batch)
         input()

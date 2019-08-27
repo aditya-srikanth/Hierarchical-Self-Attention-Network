@@ -18,7 +18,7 @@ class AttentionAspectionExtraction(nn.Module):
         super(AttentionAspectionExtraction, self).__init__()
         self.embedding_dim = embedding_dim
         self.hidden_dim = hidden_dim
-        self.embedding = nn.Embedding.from_pretrained( create_embedding_matrix(vocab, self.embedding_dim) )
+        self.embedding = nn.Embedding.from_pretrained( create_embedding_matrix(vocab, self.embedding_dim, dataset_path= config.word_embedding_path, save_weight_path= config.embedding_save_path ) )
         self.output_dim = output_dim
         
         rnn_model = kwargs.get('rnn_model','lstm')
