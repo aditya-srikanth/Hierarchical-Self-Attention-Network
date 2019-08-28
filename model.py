@@ -18,7 +18,11 @@ class AttentionAspectionExtraction(nn.Module):
         super(AttentionAspectionExtraction, self).__init__()
         self.embedding_dim = embedding_dim
         self.hidden_dim = hidden_dim
-        self.embedding = nn.Embedding.from_pretrained( create_embedding_matrix(vocab, self.embedding_dim, dataset_path= config.word_embedding_path, save_weight_path= config.embedding_save_path ) )
+        self.embedding = nn.Embedding.from_pretrained( 
+                                                        create_embedding_matrix(vocab, self.embedding_dim, 
+                                                        dataset_path= config.word_embedding_path,  
+                                                        save_weight_path= config.embedding_save_path )
+                                                    )
         self.output_dim = output_dim
         
         rnn_model = kwargs.get('rnn_model','lstm')
@@ -56,12 +60,11 @@ class AttentionAspectionExtraction(nn.Module):
         review_h, _ = self.encoder( review )
         review_h, _ = pad_packed_sequence( review_h, batch_first= True, padding_value= 0.0 )
 
-        # alpha = torch.nn.functional.softmax( torch.tanh( torch.bmm( torch.matmul( review_h, self.weight_m ), torch.transpose(review_h, 1, 2)  ) + self.bias_m ) , dim= 1 )
+        alpha = torch.nn.functional.softmax( torch.tanh( torch.bmm( torch.matmul( review_h, self.weight_m ), torch.transpose(review_h, 1, 2)  ) + self.bias_m ) , dim= 1 )
         
-        # s_i = torch.bmm( alpha, review_h )
-        
-        # x = self.w_r( s_i )
-        x = self.w_r( review_h )
-        x = nn.functional.softmax(x, dim= 2)
+        s_i = torch.bmm( alpha, review_h )
+                
+        x = torch.tanh( self.w_r( s_i ) ).contiguous() 
 
+        x = nn.functional.log_softmax(x, dim= 2)
         return x

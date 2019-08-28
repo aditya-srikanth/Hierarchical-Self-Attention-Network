@@ -30,65 +30,69 @@ class Trainer:
         print('using device: ',self.device)
 
     def run(self, num_epochs, model_save_path ):
+
         current_best = -1
         for epoch in range( num_epochs ):
+            
+            self.model.train()
             for i,batch in enumerate( self.train_dataloader ):
-                self.model.train()
+            
                 self.optimizer.zero_grad()
                 
-                batch['original_review_length'], perm_idx = batch['original_review_length'].sort( 0, descending= True )
-                batch[ 'review' ] = batch[ 'review' ][ perm_idx ]
-                batch[ 'bio_tags' ] = batch[ 'bio_tags' ][ perm_idx ]
+                batch = { k : v.to( self.device ) for k,v in batch.items() }
                 
-                targets = batch[ 'bio_tags' ].to( self.device )
-                targets = pack_padded_sequence(targets, batch['original_review_length'], batch_first= True)
-                targets,_ = pad_packed_sequence(targets,batch_first=True)
+                targets = batch[ 'targets' ]
+                targets = pack_padded_sequence(targets, batch['original_review_length'], batch_first= True, enforce_sorted= False)
+                targets,_ = pad_packed_sequence(targets,batch_first=True,padding_value= 3.0)
                 
-                batch[ 'review' ] = batch[ 'review' ].to( self.device )
-                batch['original_review_length'] = batch['original_review_length'].to( self.device )
+                mask = ( targets < 3.0 ).float()
 
-                outputs = self.model( batch )
+                targets = targets * mask
+                targets = torch.argmax( targets, dim= 2 ).view( -1 ) # concat every instance
 
+                outputs = self.model( batch ) * mask
+                outputs = outputs.view( -1, 3 )
+                # print(outputs, targets)
                 loss = self.loss_function( outputs, targets )
                 loss.backward()
+                # print(loss)
+                # input()
                 optimizer.step()
             
             print('loss ',loss, 'trainstep ', epoch)
             current_best = max( self.evaluate(current_best= current_best,path_save_best_model= model_save_path ), current_best )
 
-    def evaluate(self, current_best= None, path_save_best_model= None):            
+    def evaluate(self, current_best= None, path_save_best_model= None):
+
         with torch.no_grad():
             self.model.eval()
             for i,batch in enumerate( self.test_dataloader ):
                 
-                batch['original_review_length'], perm_idx = batch['original_review_length'].sort( 0, descending= True )
-                batch[ 'review' ] = batch[ 'review' ][ perm_idx ]
-                batch[ 'bio_tags' ] = batch[ 'bio_tags' ][ perm_idx ]
+                batch = { k : v.to( self.device ) for k,v in batch.items() }
+
+                targets = batch[ 'targets' ]
+                targets = pack_padded_sequence( targets, batch['original_review_length'], batch_first= True, enforce_sorted= False )
+                targets,_ = pad_packed_sequence( targets, batch_first= True, padding_value= 3.0 )
                 
-                targets = batch[ 'bio_tags' ].to( self.device )
-                batch[ 'review' ] = batch[ 'review' ].to( self.device )
-                batch['original_review_length'] = batch['original_review_length'].to( self.device )
+                mask = ( targets < 3.0 ).float()
 
-                outputs = self.model( batch )
-                outputs = torch.argmax( outputs, dim= 2 ).to('cpu')
-                targets = torch.argmax( targets, dim= 2 ).to('cpu')
+                targets = targets * mask
+                targets = torch.argmax( targets, dim= 2 ).view( -1 ).to( 'cpu' ) # concat every instance
                 
-                accuracy = 0.0
-
-                for row in zip(outputs, targets):
-                    accuracy += accuracy_score(row[1], row[0])
-                    
-                print( ' accuracy ', accuracy / outputs.shape[0] * 100 )
-
+                outputs = ( self.model( batch ) ) * mask
+                outputs = outputs.view( -1, 3 )
+                outputs = torch.argmax( outputs, dim= 1 ).to( 'cpu' )
+                
+                accuracy = accuracy_score( targets, outputs )
+                
+                print( ' accuracy ', accuracy * 100, precision_recall_fscore_support(targets, outputs) )
                 # input() 
-                # print('precision ', precision/outputs.shape[0], ' recall ', recall/outputs.shape[0], ' f-score ', f_score/outputs.shape[0], ' accuracy ', accuracy*100 )
-
                 
                 if path_save_best_model != None: # implicit assumption: if this is given then you want to save the model
                     if current_best == None or current_best < accuracy:
-                        print('saving model with accuracy: ', accuracy / outputs.shape[0] *100)
+                        print('saving model with accuracy: ', accuracy)
                         torch.save( self.model.state_dict(), path_save_best_model )
-
+                
             return accuracy
 
 if __name__ == "__main__":
@@ -96,8 +100,8 @@ if __name__ == "__main__":
 
     vocab = Vocab.from_files( [config.dataset_path, config.test_dataset_path] )
     
-    train_dataset = ReviewDataset('./datasets/train_data.tsv',preprocessed= True, vocab= vocab)
-    test_dataset = ReviewDataset('./datasets/test_data.tsv',preprocessed= True, vocab= vocab)
+    train_dataset = ReviewDataset('./datasets/train_data.tsv', preprocessed= True, vocab= vocab)
+    test_dataset = ReviewDataset('./datasets/test_data.tsv', preprocessed= True, vocab= vocab)
 
     model = AttentionAspectionExtraction( vocab, embedding_path= config.word_embedding_path )
     
@@ -106,10 +110,10 @@ if __name__ == "__main__":
                 if len(p.shape) > 1:
                     torch.nn.init.xavier_uniform_(p)
                 else:
-                    stdv = 1. / (p.shape[0]**0.5)
+                    stdv = 1. / (p.shape[0] ** 0.5)
                     torch.nn.init.uniform_(p, a=-stdv, b=stdv)
 
-    loss_function = nn.KLDivLoss()
+    loss_function = nn.NLLLoss(weight=tensor([0.1,0.45,0.45]).to(config.device))
     optimizer = torch.optim.Adam(model.parameters())
 
     trainer = Trainer(model, train_dataset, test_dataset, loss_function, optimizer )

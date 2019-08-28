@@ -231,11 +231,10 @@ class ReviewDataset(Dataset):
         data_item = self.review_list[idx]
         padded_review, original_review_length = self.tokenizer.pad_sequence( data_item.tokenized_text, self.max_review_length )
         bio_tags = generate_bio_tags( data_item.aspect_positions, self.max_review_length )
-        
         item = {    
                     'review': padded_review,
                     'original_review_length': original_review_length,
-                    'bio_tags': bio_tags
+                    'targets': bio_tags
                 }
 
         return item # convert Record class into dictionary for torch.Dataset to operate
@@ -380,17 +379,17 @@ class Vocab:
 if __name__ == "__main__":
 
     # process the raw xml
-    dataset = ReviewDataset(config.dataset_path)
+    vocab = Vocab.from_files( [config.dataset_path, config.test_dataset_path] )
+    
+    dataset = ReviewDataset(config.dataset_path, vocab= vocab)
     dataset.write_to_file('./datasets/train_data.tsv')
-    vocab = dataset.get_vocab()
     dataset = ReviewDataset(config.test_dataset_path,vocab= vocab)
     dataset.write_to_file('./datasets/test_data.tsv')
 
-
-    dataloader = DataLoader(dataset, batch_size= 8, shuffle= True, num_workers= 1)
+    dataloader = DataLoader(dataset, batch_size= 2, shuffle= True, num_workers= 1)
 
     # testing
     for i,batch in enumerate(dataloader):
         print('i', i)
-        # pprint(batch)
+        pprint(batch)
         input()
