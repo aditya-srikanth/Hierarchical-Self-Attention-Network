@@ -4,7 +4,8 @@ sep = '\t'
 dataset_path = './datasets/Restaurants_Train.xml'
 test_dataset_path = './datasets/Restaurants_Test.xml'
 # word_embedding_path = './glove/glove.6B.300d.txt'
-word_embedding_path = './glove/glove.42B.300d.txt'
+# word_embedding_path = './glove/glove.42B.300d.txt'
+word_embedding_path = './glove/domain_embedding/restaurant_emb.vec'
 embedding_save_path = './glove/embedding_matrix.npy'
 model_save_path = './model_weights/PBAN.pt'
 
@@ -18,10 +19,10 @@ device = 'cuda'
 batch_size = 32
 num_dataset_workers = 2
 
-word_embeding_dim = 300
+word_embeding_dim = 100
 hidden_dim = 200
 bidirectiional = True
-num_layers = 1
+num_layers = 2
 dropout = 0.5 if num_layers > 1 else 0
 
 

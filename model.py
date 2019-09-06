@@ -8,7 +8,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pprint import pprint
 from sklearn.metrics import precision_recall_fscore_support, accuracy_score
-from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
 import config
 from data_utils import create_embedding_matrix
@@ -63,7 +62,7 @@ class AttentionAspectionExtraction(nn.Module):
         alpha = torch.nn.functional.softmax( torch.tanh( torch.bmm( torch.matmul( review_h, self.weight_m ), torch.transpose(review_h, 1, 2)  ) + self.bias_m ) , dim= 1 )
         
         s_i = torch.bmm( alpha, review_h )
-                
+        # s_i = review_h                
         x = torch.tanh( self.w_r( s_i ) ).contiguous() 
 
         x = nn.functional.log_softmax(x, dim= 2)

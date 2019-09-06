@@ -157,8 +157,12 @@ class ReviewDataset(Dataset):
         self.max_aspect_length = -1
 
         if not preprocessed:
-            self.review_list = parse_xml(dataset_path)
-
+            if isinstance(dataset_path, str):
+                self.review_list = parse_xml(dataset_path)
+            else:
+                self.review_list = []
+                for path in dataset_path:
+                    self.review_list.append( parse_xml( path ) ) 
         else:
             self.review_list = []
             # when the dataset is already preprocessed and loaded into the file, just parse the strings and retreive the Record items
@@ -231,13 +235,14 @@ class ReviewDataset(Dataset):
         data_item = self.review_list[idx]
         padded_review, original_review_length = self.tokenizer.pad_sequence( data_item.tokenized_text, self.max_review_length )
         bio_tags = generate_bio_tags( data_item.aspect_positions, self.max_review_length )
+        positions = data_item.aspect_positions
         item = {    
                     'review': padded_review,
                     'original_review_length': original_review_length,
                     'targets': bio_tags
                 }
 
-        return item # convert Record class into dictionary for torch.Dataset to operate
+        return item
 
 class Vocab:
 
