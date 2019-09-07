@@ -47,6 +47,17 @@ class AttentionAspectionExtraction(nn.Module):
         self.bias_m = nn.Parameter( torch.rand( 1 ) )
         
         self.w_r = nn.Linear( self.hidden_dim * 2, output_dim )
+        
+        self.weight_init()
+
+    def weight_init(self):
+        for p in self.parameters():
+            if p.requires_grad:
+                if len(p.shape) > 1:
+                    torch.nn.init.xavier_uniform_(p)
+                else:
+                    stdv = 1. / (p.shape[0] ** 0.5)
+                    torch.nn.init.uniform_(p, a=-stdv, b=stdv)
 
     def forward( self, inputs ):
         

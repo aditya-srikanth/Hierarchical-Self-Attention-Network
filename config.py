@@ -4,11 +4,11 @@ sep = '\t'
 dataset_path = './datasets/Restaurants_Train.xml'
 test_dataset_path = './datasets/Restaurants_Test.xml'
 # word_embedding_path = './glove/glove.6B.300d.txt'
-# word_embedding_path = './glove/glove.42B.300d.txt'
-word_embedding_path = './glove/domain_embedding/restaurant_emb.vec'
+word_embedding_path = './glove/glove.42B.300d.txt'
+# word_embedding_path = './glove/domain_embedding/restaurant_emb.vec'
 embedding_save_path = './glove/embedding_matrix.npy'
-model_save_path = './model_weights/PBAN.pt'
-
+model_save_path = './model_weights/ASE.pt'
+save_stats_path = './results/ASE.tsv'
 
 
 bio_dict = { 'O':0, 'B':1, 'I':2 }
@@ -19,7 +19,7 @@ device = 'cuda'
 batch_size = 32
 num_dataset_workers = 2
 
-word_embeding_dim = 100
+word_embeding_dim = 300
 hidden_dim = 200
 bidirectiional = True
 num_layers = 2

@@ -154,7 +154,6 @@ class ReviewDataset(Dataset):
     
         self.device = device
         self.max_review_length = -1
-        self.max_aspect_length = -1
 
         if not preprocessed:
             if isinstance(dataset_path, str):
@@ -198,7 +197,6 @@ class ReviewDataset(Dataset):
                     aspect_terms_tokens.append( aspect_term_tokens )
                     aspect_terms_positions.append( aspect_term_positions )
 
-                    self.max_aspect_length = max( len( aspect_term_tokens ), self.max_aspect_length )
                 
                 review.set_aspect_term_tokens( aspect_terms_tokens ) 
                 review.set_aspect_term_positions( aspect_terms_positions ) 
@@ -208,7 +206,6 @@ class ReviewDataset(Dataset):
             else:
                 # this technically won't be used ever... coz we're filtering out sentences without tokens
                 self.max_review_length = max( len( review.tokenized_text ), self.max_review_length ) 
-                self.max_aspect_length = max( 1, self.max_aspect_length )
 
     def write_to_file(self, filepath ):
         print('writing to file')
@@ -235,7 +232,6 @@ class ReviewDataset(Dataset):
         data_item = self.review_list[idx]
         padded_review, original_review_length = self.tokenizer.pad_sequence( data_item.tokenized_text, self.max_review_length )
         bio_tags = generate_bio_tags( data_item.aspect_positions, self.max_review_length )
-        positions = data_item.aspect_positions
         item = {    
                     'review': padded_review,
                     'original_review_length': original_review_length,
