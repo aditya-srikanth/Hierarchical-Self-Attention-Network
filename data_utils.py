@@ -17,6 +17,45 @@ except Exception as e:
     import xml.etree.ElementTree
 
 
+def compute_accuracy(predictions, targets):
+    
+    tp = 0
+    tn = 0
+    fp = 0
+    fn = 0
+
+    for i in range( len( predictions ) ):
+        if predictions[i] == 0 and targets[i] == 0:
+            tn += 1
+        elif targets[i] == 0 and predictions[i] != 0:
+            fp += 1
+        elif targets[i] == 1: # B tag seen
+            matched = True
+            while targets[i] != 0:
+                if not matched:
+                    i += 1
+                elif targets[i] == predictions[i]:
+                    i += 1
+                elif targets[i] != predictions[i]:
+                    matched = False
+                    i += 1
+            if matched:
+                tp += 1
+            else:
+                fn += 1
+            i -= 1
+    precision = tp/(tp+fp) if tp+fp else 0
+    recall = tp/(tp+fn) if tp+fn else 0
+    fscore = (2*recall*precision)/(recall+precision) if recall+precision else 0
+    accuracy = (tp + tn)/ ( tp + tn + fp + fn)
+    metrics = dict()
+    metrics['acc'] = accuracy
+    metrics["p_1"] = precision
+    metrics["f_1"] = fscore
+    metrics["r_1"] = recall
+    return metrics
+
+
 def create_embedding_matrix( vocab, embedding_dim, device= config.device, dataset_path= None, save_weight_path= None):
     num_tokens = vocab.get_vocab_size()
     word2idx = vocab.get_vocab()
@@ -29,26 +68,54 @@ def create_embedding_matrix( vocab, embedding_dim, device= config.device, datase
             embedding_matrix = np.load( save_weight_path )
             print('retrieved embedding weights from existing file')
             return tensor( embedding_matrix, requires_grad= True, dtype= float32).to( device )
+        
+        if isinstance( dataset_path, str ):
+        
+            with open(dataset_path, 'r',encoding='utf-8') as f:
+                num_mapped_words = 0
+                num_total_words_seen = 0
+                for line in f:
+                    values = line.split()
+                    word = values[0]
+                    num_total_words_seen += 1
+                    
+                    if word in word2idx and not word == '<pad>' and not word == '<unk>':
+                        vector = np.asarray( values[1:] )
+                        embedding_matrix[ word2idx[ word ], : ] = vector
+                        num_mapped_words += 1
+                    
+                    if num_total_words_seen % 1000000 == 0:
+                        print('num_total_words_seen ',num_total_words_seen)
 
-        with open(dataset_path, 'r',encoding='utf-8') as f:
-            num_mapped_words = 0
-            num_total_words_seen = 0
-            for line in f:
-                values = line.split()
-                word = values[0]
-                num_total_words_seen += 1
-                
-                if word in word2idx and not word == '<pad>' and not word == '<unk>':
-                    vector = np.asarray( values[1:] )
-                    embedding_matrix[ word2idx[ word ], : ] = vector
-                    num_mapped_words += 1
-                
-                if num_total_words_seen % 1000000 == 0:
-                    print('num_total_words_seen ',num_total_words_seen)
-            
+        elif isinstance( dataset_path, list ):
+            for path in dataset_path:
+
+                with open( path, 'r', encoding= 'utf-8' ) as f:
+
+                    num_mapped_words = 0
+                    num_total_words_seen = 0
+
+                    for line in f:
+
+                        values = line.split()
+                        word = values[0]
+                        num_total_words_seen += 1
+                        
+                        if word in word2idx and not word == '<pad>' and not word == '<unk>':
+                            vector = np.asarray( values[1:] )
+                            embedding_matrix[ word2idx[ word ], : ] = vector
+                            num_mapped_words += 1
+                        
+                        if num_total_words_seen % 1000000 == 0:
+                            print('num_total_words_seen ',num_total_words_seen)
+
+
         print('loaded pretrained matrix, ', ' num mapped words: ', num_mapped_words)
         if save_weight_path != None:
             np.save(save_weight_path, embedding_matrix)
+            with open( './glove/mapping.json', 'w' ) as f:
+                import json
+                json.dump( word2idx, f )
         return tensor( embedding_matrix, requires_grad= True, dtype= float32).to(device)
 
     print('loaded trainable embedding matrix')
@@ -122,7 +189,6 @@ def generate_bio_tags( start_end_indices, max_length):
         bio_tags[ start_index:end_index + 1,: ] =   tensor([ [ 0.0, 1.0, 0.0 ] ] + [ [ 0.0, 0.0, 1.0 ] ] * (end_index - start_index ))
 
     return bio_tags
-
 
 class Review:
     def __init__( self, review_id, text, aspect_term= None ):

@@ -6,50 +6,11 @@ from torch import nn
 from torch.utils.data import Dataset, DataLoader, ConcatDataset, random_split
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence, pad_sequence
 import numpy as np 
-from sklearn.metrics import precision_recall_fscore_support, accuracy_score
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
 import config
-from data_utils import ReviewDataset, Vocab, Review, subfinder, generate_bio_tags, create_embedding_matrix
+from data_utils import ReviewDataset, Vocab, Review, subfinder, generate_bio_tags, create_embedding_matrix, compute_accuracy
 from model import AttentionAspectionExtraction
-
-def compute_accuracy(predictions, targets):
-    
-    tp = 0
-    tn = 0
-    fp = 0
-    fn = 0
-
-    for i in range( len( predictions ) ):
-        if predictions[i] == 0 and targets[i] == 0:
-            tn += 1
-        elif targets[i] == 0 and predictions[i] != 0:
-            fp += 1
-        elif targets[i] == 1: # B tag seen
-            matched = True
-            while targets[i] != 0:
-                if not matched:
-                    i += 1
-                elif targets[i] == predictions[i]:
-                    i += 1
-                elif targets[i] != predictions[i]:
-                    matched = False
-                    i += 1
-            if matched:
-                tp += 1
-            else:
-                fn += 1
-            i -= 1
-    precision = tp/(tp+fp) if tp+fp else 0
-    recall = tp/(tp+fn) if tp+fn else 0
-    fscore = (2*recall*precision)/(recall+precision) if recall+precision else 0
-    accuracy = (tp + tn)/ ( tp + tn + fp + fn)
-    metrics = dict()
-    metrics['acc'] = accuracy
-    metrics["p_1"] = precision
-    metrics["f_1"] = fscore
-    metrics["r_1"] = recall
-    return metrics
 
 class Trainer:
     def __init__(self, model, train_dataset, test_dataset, loss_function, optimizer, num_folds = -1):
@@ -143,37 +104,42 @@ class Trainer:
 
     def run(self, num_epochs, model_save_path, stats_save_path = config.save_stats_path ):
         
-        results = []
-        
-        if self.num_folds == -1:
-            result = self._train(self.train_dataset, self.test_dataset, num_epochs, model_save_path, stats_save_path)
-            results.append( result )
-
-        elif self.num_folds > 1:
-            dataset = ConcatDataset( [ self.train_dataset, self.test_dataset ] )
-            dataset_size = len( dataset )
-            fold_size = dataset_size // self.num_folds
-            lengths = [ fold_size ] * self.num_folds # creates equal size folds
-            splits = random_split( dataset, lengths )
-            
-            for i in range( self.num_folds ):
-                
-                self.model.weight_init()
-
-                test_dataset = splits[ i ]
-                indices = [ j for j in range( self.num_folds ) if j != i ]
-                train_dataset = ConcatDataset( [ splits[ index ] for index in indices ] )
-                result = self._train( train_dataset, test_dataset, num_epochs, model_save_path, stats_save_path )
-                results.append( result )    
-        
         with open( stats_save_path,'w' ) as f:
 
-            headers = '\t'.join( [ key for key, _ in results[ 0 ][ 1 ].items() ]) + '\n'
-            f.write( headers )
-
-            for result in results:
+            if self.num_folds == -1:
+                result = self._train(self.train_dataset, self.test_dataset, num_epochs, model_save_path, stats_save_path)
+                headers = '\t'.join( [ str( header ) for header, _ in result[ 1 ].items() ]) + '\n'         
                 string_results = '\t'.join( [ str( score ) for _, score in result[ 1 ].items() ]) + '\n'
+                
+                f.write(headers)
                 f.write(string_results)
+
+            elif self.num_folds > 1:
+                dataset = ConcatDataset( [ self.train_dataset, self.test_dataset ] )
+                dataset_size = len( dataset )
+                fold_size = dataset_size // self.num_folds
+                lengths = [ fold_size ] * self.num_folds # creates equal size folds 
+                lengths.append( dataset_size - sum( lengths ) )
+                splits = random_split( dataset, lengths )
+                
+                for i in range( self.num_folds ):
+                    print(' fold number: ',i)
+                    self.model.weight_init()
+
+                    test_dataset = splits[ i ]
+                    indices = [ j for j in range( self.num_folds ) if j != i ]
+                    train_dataset = ConcatDataset( [ splits[ index ] for index in indices ] )
+                    result = self._train( train_dataset, test_dataset, num_epochs, model_save_path, stats_save_path )
+                
+
+                    if i == 0:
+                        headers = '\t'.join( [ str( header ) for header, _ in result[ 1 ].items() ]) + '\n'
+                        f.write(headers)
+                        
+                    string_results = '\t'.join( [ str( score ) for _, score in result[ 1 ].items() ]) + '\n'
+                    f.write(string_results)
+            
+        
     
 if __name__ == "__main__":
 
@@ -193,6 +159,6 @@ if __name__ == "__main__":
     loss_function = nn.NLLLoss(weight=weight)
     optimizer = torch.optim.Adam(model.parameters())
 
-    trainer = Trainer(model, train_dataset, test_dataset, loss_function, optimizer, num_folds= 2 )
-    trainer.run(500, config.model_save_path )
+    trainer = Trainer(model, train_dataset, test_dataset, loss_function, optimizer, num_folds= 10 )
+    trainer.run(config.num_epochs, config.model_save_path )
 
