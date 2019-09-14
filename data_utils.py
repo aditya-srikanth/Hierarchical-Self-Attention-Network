@@ -267,13 +267,7 @@ class ReviewDataset(Dataset):
 
                 
                 review.set_aspect_term_tokens( aspect_terms_tokens ) 
-                review.set_aspect_term_positions( aspect_terms_positions ) 
-
-                padded_review, original_review_length = self.tokenizer.pad_sequence( review.tokenized_text, config.max_review_length )
-                bio_tags = generate_bio_tags( review.aspect_positions, config.max_review_length )
-                review.tokenized_text = padded_review
-                review.review_length = original_review_length
-                review.tags = bio_tags 
+                review.set_aspect_term_positions( aspect_terms_positions )  
 
     def write_to_file(self, filepath ):
         print('writing to file')
@@ -298,10 +292,13 @@ class ReviewDataset(Dataset):
     def __getitem__(self, idx):
 
         data_item = self.review_list[idx]
+        padded_review, original_review_length = self.tokenizer.pad_sequence( data_item.tokenized_text, config.max_review_length )
+        bio_tags = generate_bio_tags( data_item.aspect_positions, config.max_review_length )
+        
         item = {    
-                    'review': data_item.tokenized_text,
-                    'original_review_length': data_item.review_length,
-                    'targets': data_item.tags
+                    'review': padded_review,
+                    'original_review_length': original_review_length,
+                    'targets': bio_tags
                 }
 
         return item

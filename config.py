@@ -17,7 +17,7 @@ device = 'cuda'
 # hyper parameters.
 num_epochs = 200
 batch_size = 16
-num_dataset_workers = 4
+num_dataset_workers = 1
 
 word_embeding_dim = 200
 hidden_dim = 50
