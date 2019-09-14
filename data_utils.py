@@ -113,9 +113,6 @@ def create_embedding_matrix( vocab, embedding_dim, device= config.device, datase
         print('loaded pretrained matrix, ', ' num mapped words: ', num_mapped_words)
         if save_weight_path != None:
             np.save(save_weight_path, embedding_matrix)
-            with open( './glove/mapping.json', 'w' ) as f:
-                import json
-                json.dump( word2idx, f )
         return tensor( embedding_matrix, requires_grad= True, dtype= float32).to(device)
 
     print('loaded trainable embedding matrix')
@@ -246,7 +243,10 @@ class ReviewDataset(Dataset):
             print('loading file complete')
         
         self.tokenizer = Vocab( self.review_list ) if vocab == None else vocab
-        
+        with open( './glove/mapping.json', 'w' ) as f:
+                import json
+                print('creating a mapping file')
+                json.dump( self.tokenizer.get_vocab(), f )
         for review in self.review_list:
             
             review.tokenized_text = self.tokenizer.convert_text_to_sequence_numbers( review.text )
@@ -445,13 +445,13 @@ class Vocab:
 
 if __name__ == "__main__":
 
-    # # process the raw xml
-    # vocab = Vocab.from_files( [config.dataset_path, config.test_dataset_path] )
+    # process the raw xml
+    vocab = Vocab.from_files( [config.dataset_path, config.test_dataset_path] )
     
-    # dataset = ReviewDataset(config.dataset_path, vocab= vocab)
-    # dataset.write_to_file('./datasets/train_data.tsv')
-    # dataset = ReviewDataset(config.test_dataset_path,vocab= vocab)
-    # dataset.write_to_file('./datasets/test_data.tsv')
+    dataset = ReviewDataset(config.dataset_path, vocab= vocab)
+    dataset.write_to_file('./datasets/train_data.tsv')
+    dataset = ReviewDataset(config.test_dataset_path,vocab= vocab)
+    dataset.write_to_file('./datasets/test_data.tsv')
 
     # dataloader = DataLoader(dataset, batch_size= 2, shuffle= True, num_workers= 1)
 

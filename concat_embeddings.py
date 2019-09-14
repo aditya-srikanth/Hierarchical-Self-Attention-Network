@@ -11,7 +11,7 @@ with open('./glove/mapping.json', 'r') as f:
 
 embedding = np.zeros((len(vocab), 200))
 
-with open('glove/glove.6B.100d.txt', 'r' ) as f:
+with open('glove/glove.6B.100d.txt', 'r', encoding= 'utf-8' ) as f:
     for line in f:
         values = line.split()
         word = values[0]
@@ -21,7 +21,7 @@ with open('glove/glove.6B.100d.txt', 'r' ) as f:
 
 print('glove done')
 
-with open('glove/domain_embedding/restaurant_emb.vec','r') as f:
+with open('glove/domain_embedding/restaurant_emb.vec','r', encoding='utf-8') as f:
     for line in f:
         values = line.split()
         word = values[0]
@@ -32,9 +32,9 @@ with open('glove/domain_embedding/restaurant_emb.vec','r') as f:
 with open('glove/concat_glove_restaurant.npz', 'wb') as f:
     np.save(f, embedding)
 
+print('saved restaurant glove embedding')
 
-
-with open('glove/glove.6B.100d.txt', 'r' ) as f:
+with open('glove/glove.6B.100d.txt', 'r', encoding='utf-8' ) as f:
     for line in f:
         values = line.split()
         word = values[0]
@@ -44,7 +44,7 @@ with open('glove/glove.6B.100d.txt', 'r' ) as f:
 
 print('glove done')
 
-with open('glove/domain_embedding/laptop_emb.vec','r') as f:
+with open('glove/domain_embedding/laptop_emb.vec','r', encoding= 'utf-8') as f:
     for line in f:
         values = line.split()
         word = values[0]
@@ -54,3 +54,5 @@ with open('glove/domain_embedding/laptop_emb.vec','r') as f:
 
 with open('glove/concat_glove_laptop.npz', 'wb') as f:
     np.save(f, embedding)
+
+print('saved laptop glove embedding')
