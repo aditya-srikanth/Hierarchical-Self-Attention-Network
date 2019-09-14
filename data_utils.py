@@ -31,7 +31,8 @@ def compute_accuracy(predictions, targets):
             fp += 1
         elif targets[i] == 1: # B tag seen
             matched = True
-            while targets[i] != 0:
+            begin = i
+            while i < len( predictions ) and targets[i] != 0 and not ( i > begin and targets[i] == 1 ): # B tag not seen again
                 if not matched:
                     i += 1
                 elif targets[i] == predictions[i]:
@@ -54,7 +55,6 @@ def compute_accuracy(predictions, targets):
     metrics["f_1"] = fscore
     metrics["r_1"] = recall
     return metrics
-
 
 def create_embedding_matrix( vocab, embedding_dim, device= config.device, dataset_path= None, save_weight_path= None):
     num_tokens = vocab.get_vocab_size()
@@ -199,8 +199,10 @@ class Review:
         self.text = text
         self.aspect_terms = aspect_term
         
+        self.review_length = -1
         self.tokenized_text = [] # tokenized after the Dataset is parsed by the Vocab
         self.aspect_term_tokens = []
+        self.tags = []
         self.aspect_positions = [] # populated after the Vocab is generated, contains a tuple of start index and end index
     
     def __str__(self):
@@ -267,11 +269,11 @@ class ReviewDataset(Dataset):
                 review.set_aspect_term_tokens( aspect_terms_tokens ) 
                 review.set_aspect_term_positions( aspect_terms_positions ) 
 
-                self.max_review_length = max( len( review.tokenized_text ), self.max_review_length )
-
-            else:
-                # this technically won't be used ever... coz we're filtering out sentences without tokens
-                self.max_review_length = max( len( review.tokenized_text ), self.max_review_length ) 
+                padded_review, original_review_length = self.tokenizer.pad_sequence( review.tokenized_text, config.max_review_length )
+                bio_tags = generate_bio_tags( review.aspect_positions, config.max_review_length )
+                review.tokenized_text = padded_review
+                review.review_length = original_review_length
+                review.tags = bio_tags 
 
     def write_to_file(self, filepath ):
         print('writing to file')
@@ -296,12 +298,10 @@ class ReviewDataset(Dataset):
     def __getitem__(self, idx):
 
         data_item = self.review_list[idx]
-        padded_review, original_review_length = self.tokenizer.pad_sequence( data_item.tokenized_text, self.max_review_length )
-        bio_tags = generate_bio_tags( data_item.aspect_positions, self.max_review_length )
         item = {    
-                    'review': padded_review,
-                    'original_review_length': original_review_length,
-                    'targets': bio_tags
+                    'review': data_item.tokenized_text,
+                    'original_review_length': data_item.review_length,
+                    'targets': data_item.tags
                 }
 
         return item
@@ -445,18 +445,21 @@ class Vocab:
 
 if __name__ == "__main__":
 
-    # process the raw xml
-    vocab = Vocab.from_files( [config.dataset_path, config.test_dataset_path] )
+    # # process the raw xml
+    # vocab = Vocab.from_files( [config.dataset_path, config.test_dataset_path] )
     
-    dataset = ReviewDataset(config.dataset_path, vocab= vocab)
-    dataset.write_to_file('./datasets/train_data.tsv')
-    dataset = ReviewDataset(config.test_dataset_path,vocab= vocab)
-    dataset.write_to_file('./datasets/test_data.tsv')
+    # dataset = ReviewDataset(config.dataset_path, vocab= vocab)
+    # dataset.write_to_file('./datasets/train_data.tsv')
+    # dataset = ReviewDataset(config.test_dataset_path,vocab= vocab)
+    # dataset.write_to_file('./datasets/test_data.tsv')
 
-    dataloader = DataLoader(dataset, batch_size= 2, shuffle= True, num_workers= 1)
+    # dataloader = DataLoader(dataset, batch_size= 2, shuffle= True, num_workers= 1)
 
-    # testing
-    for i,batch in enumerate(dataloader):
-        print('i', i)
-        pprint(batch)
-        input()
+    # # testing
+    # for i,batch in enumerate(dataloader):
+    #     print('i', i)
+    #     pprint(batch)
+    #     input()
+    x = [0,1,2,1,2,0]
+    y = [0,1,2,1,0,0]
+    print(compute_accuracy(y, x))
