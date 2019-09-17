@@ -73,30 +73,31 @@ class AttentionAspectionExtraction(nn.Module):
 
         review = self.embedding( review )
         review = pack_padded_sequence(review, review_lengths, batch_first= True, enforce_sorted= False)
-
+      
         review_h, _ = self.encoder( review )
         review_h, _ = pad_packed_sequence( review_h, batch_first= True, padding_value= 0.0 )
 
-        alpha = torch.nn.functional.softmax( torch.tanh( torch.bmm( torch.matmul( review_h, self.weight_m ), torch.transpose(review_h, 1, 2)  ) + self.bias_m ) , dim= 1 )
+        # alpha = torch.nn.functional.softmax( torch.tanh( torch.bmm( torch.matmul( review_h, self.weight_m ), torch.transpose(review_h, 1, 2)  ) + self.bias_m ) , dim= 1 )
         
-        s_i = torch.bmm( alpha, review_h )
-        
+        # s_i = torch.bmm( alpha, review_h )
+        s_i = review_h
         x = torch.tanh( self.w_r( s_i ) ).contiguous() 
-        
-        if self.use_crf:
 
-            x *= mask
+        if mask is None:
+            mask = torch.ones((x.shape[0], x.shape[1]))
+
+        if self.use_crf:
             targets = inputs[ 'targets' ]
             targets = pack_padded_sequence(targets, inputs['original_review_length'], batch_first= True, enforce_sorted= False)
-            targets, _ = pad_packed_sequence(targets,batch_first=True,padding_value= 3.0)
-            targets = torch.argmax( targets, dim= 2 )
-            print(x.shape, targets.shape)
-            loss = self.crf( x, targets, mask= mask )
-
-            if get_predictions:
-                return loss, self.crf.decode( targets )
+            targets, _ = pad_packed_sequence(targets,batch_first=True,padding_value= 0)
             
-            return loss 
+            mask = mask.squeeze_().type( torch.uint8 )
+            loss = self.crf( x, targets, mask = mask )
+            if get_predictions:
+                temp = self.crf.decode( x )
+                return - loss, torch.tensor( np.array(temp) , dtype= torch.long, device= config.device)
+            
+            return - loss 
 
         x = nn.functional.log_softmax(x, dim= 2)
         return x * mask
