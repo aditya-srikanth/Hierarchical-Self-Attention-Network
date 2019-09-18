@@ -17,7 +17,7 @@ except Exception as e:
     import xml.etree.ElementTree
 
 
-def compute_accuracy(predictions, targets):
+def evaluation_metrics(predictions, targets):
     
     tp = 0
     tn = 0
@@ -25,14 +25,20 @@ def compute_accuracy(predictions, targets):
     fn = 0
 
     for i in range( len( predictions ) ):
-        if predictions[i] == 0 and targets[i] == 0:
+        
+        if targets[i] == config.PAD: # special padding value, ignore this
+            continue 
+
+        elif predictions[i] == config.bio_dict['O'] and targets[i] == config.bio_dict['O']:
             tn += 1
-        elif targets[i] == 0 and predictions[i] != 0:
+        elif targets[i] == config.bio_dict['O'] and predictions[i] != config.bio_dict['O']:
             fp += 1
-        elif targets[i] == 1: # B tag seen
+        elif targets[i] == config.bio_dict['B']: # B tag seen
             matched = True
             begin = i
-            while i < len( predictions ) and targets[i] != 0 and not ( i > begin and targets[i] == 1 ): # B tag not seen again
+            while   i < len( predictions ) and targets[i] != config.bio_dict['O'] and targets[i] != config.PAD and \
+                    not ( i > begin and targets[i] == config.bio_dict['B'] ): # B tag not seen again
+                
                 if not matched:
                     i += 1
                 elif targets[i] == predictions[i]:
@@ -49,6 +55,7 @@ def compute_accuracy(predictions, targets):
     recall = tp/(tp+fn) if tp+fn else 0
     fscore = (2*recall*precision)/(recall+precision) if recall+precision else 0
     accuracy = (tp + tn)/ ( tp + tn + fp + fn)
+    print('tp: ',tp, ' tn:', tn, ' fp: ', fp, ' fn: ', fn)
     metrics = dict()
     metrics['acc'] = accuracy
     metrics["p_1"] = precision
@@ -101,7 +108,7 @@ def create_embedding_matrix( vocab, embedding_dim, device= config.device, datase
                         word = values[0]
                         num_total_words_seen += 1
                         
-                        if word in word2idx and not word == '<pad>' and not word == '<unk>':
+                        if word in word2idx and  word != '<pad>' and word != '<unk>':
                             vector = np.asarray( values[1:] )
                             embedding_matrix[ word2idx[ word ], : ] = vector
                             num_mapped_words += 1
@@ -174,7 +181,7 @@ def subfinder(mylist, pattern):
 
 def generate_bio_tags( start_end_indices, max_length):
 
-    bio_tags = tensor([ [ 0.0, 0.0, 0.0 ] ] * max_length)
+    bio_tags = tensor([ config.bio_dict['O'] ] * max_length, dtype= torch.int64) 
     
     if start_end_indices == None or len( start_end_indices ) == 0:
         return bio_tags
@@ -183,7 +190,7 @@ def generate_bio_tags( start_end_indices, max_length):
 
         start_index = indices[ 0 ]
         end_index = indices[ 1 ]
-        bio_tags[ start_index:end_index + 1,: ] =   tensor([ [ 0.0, 1.0, 0.0 ] ] + [ [ 0.0, 0.0, 1.0 ] ] * (end_index - start_index ))
+        bio_tags[ start_index:end_index + 1 ] =   tensor([ config.bio_dict['B'] ] + [ config.bio_dict['I'] ] * (end_index - start_index ))
 
     return bio_tags
 
@@ -196,10 +203,10 @@ class Review:
         self.text = text
         self.aspect_terms = aspect_term
         
-        self.review_length = -1
-        self.tokenized_text = [] # tokenized after the Dataset is parsed by the Vocab
+        self.review_length = None
+        self.tokenized_text = None # tokenized after the Dataset is parsed by the Vocab
         self.aspect_term_tokens = []
-        self.tags = []
+        self.tags = None
         self.aspect_positions = [] # populated after the Vocab is generated, contains a tuple of start index and end index
     
     def __str__(self):
@@ -213,6 +220,12 @@ class Review:
     
     def set_aspect_term_tokens(self, aspect_term_tokens):
         self.aspect_term_tokens = aspect_term_tokens
+    
+    def set_tags(self, tags):
+        self.tags = tags
+    
+    def set_review_length(self, length):
+        self.review_length = length
 
 class ReviewDataset(Dataset):
     def __init__( self, dataset_path, device= config.device, preprocessed= False, vocab= None ):
@@ -267,7 +280,14 @@ class ReviewDataset(Dataset):
 
                 
                 review.set_aspect_term_tokens( aspect_terms_tokens ) 
-                review.set_aspect_term_positions( aspect_terms_positions )  
+                review.set_aspect_term_positions( aspect_terms_positions )
+            
+            padded_review, original_review_length = self.tokenizer.pad_sequence( review.tokenized_text, config.max_review_length )
+            bio_tags = generate_bio_tags( review.aspect_positions, config.max_review_length )  
+
+            review.set_tokenized_text( padded_review )
+            review.set_review_length( original_review_length )
+            review.set_tags( bio_tags )
 
     def write_to_file(self, filepath ):
         print('writing to file')
@@ -292,13 +312,13 @@ class ReviewDataset(Dataset):
     def __getitem__(self, idx):
 
         data_item = self.review_list[idx]
-        padded_review, original_review_length = self.tokenizer.pad_sequence( data_item.tokenized_text, config.max_review_length )
-        bio_tags = generate_bio_tags( data_item.aspect_positions, config.max_review_length )
+        # padded_review, original_review_length = self.tokenizer.pad_sequence( data_item.tokenized_text, config.max_review_length )
+        # bio_tags = generate_bio_tags( data_item.aspect_positions, config.max_review_length )
         
         item = {    
-                    'review': padded_review,
-                    'original_review_length': original_review_length,
-                    'targets': bio_tags
+                    'review': data_item.tokenized_text,
+                    'original_review_length': data_item.review_length,
+                    'targets': data_item.tags
                 }
 
         return item
