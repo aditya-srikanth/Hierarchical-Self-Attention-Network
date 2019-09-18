@@ -11,7 +11,7 @@ embedding_save_path = './glove/concat_glove_restaurant.npz'
 model_save_path = './model_weights/Rest_ASE_Glove_attention_concat_embedding.pt'
 save_stats_path = './results/Rest_ASE_Glove_attention_concat_embedding_unweighted.tsv'
 
-bio_dict = { 'B': 2, 'I':1, 'O':0 }
+bio_dict = { 'B': 1, 'I': 2 , 'O':0 }
 device = 'cuda'
 # device = 'cpu'
 
@@ -23,9 +23,9 @@ num_dataset_workers = 0
 word_embeding_dim = 200
 hidden_dim = 50
 bidirectiional = True
-num_layers = 1
-dropout = 0.3 if num_layers > 1 else 0
+num_layers = 2
+dropout = 0 if num_layers > 1 else 0
 
 
 # will be updated when the dataset is processed
-max_review_length = 80
+max_review_length = 85

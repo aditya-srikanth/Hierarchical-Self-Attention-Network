@@ -24,6 +24,8 @@ def evaluation_metrics(predictions, targets):
     fp = 0
     fn = 0
 
+    print( predictions, predictions.shape, targets.shape )
+    print(sum((targets == predictions).float()))
     for i in range( len( predictions ) ):
         
         if targets[i] == config.PAD: # special padding value, ignore this
@@ -269,7 +271,7 @@ class ReviewDataset(Dataset):
                 aspect_terms_positions = []
                 for aspect in review.aspect_terms:
 
-                    aspect_term_tokens = self.tokenizer.convert_text_to_sequence_numbers( aspect )
+                    aspect_term_tokens = self.tokenizer.convert_text_to_sequence_numbers( aspect, aspect= True )
                     aspect_term_positions = subfinder( review.tokenized_text, aspect_term_tokens )
                     if aspect_term_positions == None:
                         import sys
@@ -344,6 +346,14 @@ class Vocab:
         self.word_to_idx['<unk>'] = 1
         self.index_to_word[1] = '<unk>'
         self.size_of_vocab += 1
+        
+        self.word_to_idx['<sos>'] = 2
+        self.index_to_word[2] = '<sos>'
+        self.size_of_vocab += 1
+        
+        self.word_to_idx['<eos>'] = 3
+        self.index_to_word[ 3 ] = '<eos>'
+        self.size_of_vocab += 1
 
         self.nlp = English()
         self.tokenizer = self.nlp.Defaults.create_tokenizer(self.nlp)
@@ -380,7 +390,7 @@ class Vocab:
 
         return self.size_of_vocab
 
-    def convert_text_to_sequence_numbers(self, reviews):
+    def convert_text_to_sequence_numbers(self, reviews, aspect= False):
         """ 
         :type reviews: list of strings or a string
         :param reviews: review's text
@@ -402,9 +412,11 @@ class Vocab:
                     else:
                         num_unk_tokens += 1
                         review_sequences.append( self.word_to_idx[ '<unk>' ] )
-
+                if not aspect:
+                    reveiw_sequences = [ self.word_to_idx['<sos>'] ] + review_sequences + [ self.word_to_idx['<eos>'] ]
                 text_sequences.append( review_sequences )
             print('num tokens: ',num_tokens,' num unk tokens: ', num_unk_tokens, ' percentage: ', 100*(num_unk_tokens/num_tokens))
+           
             return text_sequences
         
         elif isinstance(reviews, str):
@@ -415,8 +427,10 @@ class Vocab:
                     review_sequences.append( self.word_to_idx[ token.text ] )
                 else:
                     review_sequences.append( self.word_to_idx[ '<unk>' ] )
-            return review_sequences
-            
+            if not aspect:
+                return [ self.word_to_idx['<sos>'] ] + review_sequences + [ self.word_to_idx['<eos>'] ]
+            else:
+                return review_sequences
     def convert_sequence_numbers_to_text( self, reviews_sequences ):
         """ Converts list of sequence numbers to text
 
@@ -428,12 +442,12 @@ class Vocab:
         if isinstance(reviews_sequences[0], list):
             reviews = []
             for review_sequence in reviews_sequences:    
-                review = ' '.join( [ self.index_to_word[ idx ] for idx in review_sequence ] )
+                review = ' '.join( [ self.index_to_word[ idx ] for idx in review_sequence if idx != self.word_to_idx['<sos>'] or idx != self.word_to_idx['<eos>']  ] )
                 reviews.append( review )
             return reviews
                     
         elif isinstance( reviews_sequences[0], int):
-            review = ' '.join( [ self.index_to_word[ idx ] for idx in reviews_sequences ] )
+            review = ' '.join( [ self.index_to_word[ idx ] for idx in reviews_sequences if idx != self.word_to_idx['<sos>'] or idx != self.word_to_idx['<eos>']] )
             return review
 
     def has_word(self, word):
@@ -449,7 +463,7 @@ class Vocab:
             elif padding == 'pre':
                 input_sequence = [ self.word_to_idx['<pad>'] ] * ( length - len( input_sequence ) ) + input_sequence 
         
-        return tensor( input_sequence ), tensor( original_length, dtype= int32)
+        return tensor( input_sequence ), tensor( original_length, dtype= torch.int64)
 
     @classmethod
     def from_files( cls, file_list ):
@@ -470,13 +484,13 @@ if __name__ == "__main__":
     dataset = ReviewDataset(config.test_dataset_path,vocab= vocab)
     dataset.write_to_file('./datasets/test_data.tsv')
 
-    # dataloader = DataLoader(dataset, batch_size= 2, shuffle= True, num_workers= 1)
+    dataloader = DataLoader(dataset, batch_size= 2, shuffle= True, num_workers= 1)
 
     # # testing
-    # for i,batch in enumerate(dataloader):
-    #     print('i', i)
-    #     pprint(batch)
-    #     input()
+    for i,batch in enumerate(dataloader):
+         print('i', i)
+         pprint(batch)
+         input()
     x = [0,1,2,1,2,0]
     y = [0,1,2,1,0,0]
-    print(compute_accuracy(y, x))
+    print(evaluation_metrics(y, x))

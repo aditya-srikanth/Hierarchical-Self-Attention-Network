@@ -80,7 +80,7 @@ class AttentionAspectionExtraction(nn.Module):
 
         review = self.embedding( review )
         review = pack_padded_sequence(review, review_lengths, batch_first= True, enforce_sorted= False)
-
+      
         review_h, _ = self.encoder( review )
         review_h, _ = pad_packed_sequence( review_h, batch_first= True, padding_value= 0 ) # shape: ( batch_size, seq_len, hidden_dim )
 
@@ -91,6 +91,8 @@ class AttentionAspectionExtraction(nn.Module):
         
         s_i = torch.bmm( alpha, review_h )
         
+        # s_i = torch.bmm( alpha, review_h )
+        s_i = review_h
         x = torch.tanh( self.w_r( s_i ) ).contiguous() 
         
         
@@ -237,4 +239,7 @@ class SelfAttentionLSTM(nn.Module):
 
         x = nn.functional.log_softmax(x, dim= 2)
         return x
+<<<<<<< HEAD
 
+=======
+>>>>>>> 101dabb781efca596576051e63b0699b08ae67c3
