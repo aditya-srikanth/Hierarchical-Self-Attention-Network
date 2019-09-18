@@ -239,7 +239,3 @@ class SelfAttentionLSTM(nn.Module):
 
         x = nn.functional.log_softmax(x, dim= 2)
         return x
-<<<<<<< HEAD
-
-=======
->>>>>>> 101dabb781efca596576051e63b0699b08ae67c3
