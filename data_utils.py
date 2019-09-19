@@ -108,7 +108,7 @@ def create_embedding_matrix( vocab, embedding_dim, device= config.device, datase
                         word = values[0]
                         num_total_words_seen += 1
                         
-                        if word in word2idx and not word == '<pad>' and not word == '<unk>':
+                        if word in word2idx and  word != '<pad>' and word != '<unk>':
                             vector = np.asarray( values[1:] )
                             embedding_matrix[ word2idx[ word ], : ] = vector
                             num_mapped_words += 1

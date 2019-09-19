@@ -5,14 +5,13 @@ from torch import tensor
 from torch import nn
 from torch.utils.data import Dataset, DataLoader, ConcatDataset, random_split
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence, pad_sequence
-from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 import numpy as np 
 import gc 
 from tqdm import tqdm
 
 import config
 from data_utils import ReviewDataset, Vocab, Review, subfinder, generate_bio_tags, create_embedding_matrix, evaluation_metrics
-from model import AttentionAspectionExtraction
+from model import AttentionAspectionExtraction,BaseLineLSTM
 
 class Trainer:
     def __init__(self, model, train_dataset, test_dataset, loss_function, optimizer, num_folds = 1):
