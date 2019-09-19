@@ -279,9 +279,5 @@ class BaseLineLSTM(nn.Module):
         x = torch.tanh( self.w_r( review_h ) ).contiguous() 
 
         x = nn.functional.log_softmax(x, dim= 2)
-<<<<<<< HEAD
         return x
 
-=======
-        return x
->>>>>>> 8a4697a50f110d69057cb4117c3205426b79bd88
