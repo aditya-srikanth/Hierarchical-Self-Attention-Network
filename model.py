@@ -80,7 +80,7 @@ class AttentionAspectionExtraction(nn.Module):
 
         review = self.embedding( review )
         review = pack_padded_sequence(review, review_lengths, batch_first= True, enforce_sorted= False)
-      
+
         review_h, _ = self.encoder( review )
         review_h, _ = pad_packed_sequence( review_h, batch_first= True, padding_value= 0 ) # shape: ( batch_size, seq_len, hidden_dim )
 
@@ -279,5 +279,9 @@ class BaseLineLSTM(nn.Module):
         x = torch.tanh( self.w_r( review_h ) ).contiguous() 
 
         x = nn.functional.log_softmax(x, dim= 2)
+<<<<<<< HEAD
         return x
 
+=======
+        return x
+>>>>>>> 8a4697a50f110d69057cb4117c3205426b79bd88

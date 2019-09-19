@@ -163,7 +163,11 @@ if __name__ == "__main__":
     train_dataset = ReviewDataset('./datasets/train_data.tsv', preprocessed= True, vocab= vocab)
     test_dataset = ReviewDataset('./datasets/test_data.tsv', preprocessed= True, vocab= vocab)
     
+<<<<<<< HEAD
     model = MultiHeadAttentionAspectionExtraction( vocab, embedding_path= config.word_embedding_path, num_heads= 2, use_crf= False )
+=======
+    model = AttentionAspectionExtraction( vocab, embedding_path= config.word_embedding_path, use_crf= True )
+>>>>>>> 8a4697a50f110d69057cb4117c3205426b79bd88
 
     weight=tensor([ 0.2, 0.4, 0.4 ]).to( config.device )
     loss_function = nn.NLLLoss(weight= weight)
