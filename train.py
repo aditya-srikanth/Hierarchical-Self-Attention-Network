@@ -15,7 +15,7 @@ from data_utils import ReviewDataset, Vocab, Review, subfinder, generate_bio_tag
 from model import AttentionAspectionExtraction
 
 class Trainer:
-    def __init__(self, model, train_dataset, test_dataset, loss_function, optimizer, use_crf= False, num_folds = -1):
+    def __init__(self, model, train_dataset, test_dataset, loss_function, optimizer, num_folds = 1):
         
         self.train_dataset = train_dataset 
         self.test_dataset = test_dataset
@@ -23,7 +23,7 @@ class Trainer:
         self.loss_function = loss_function 
         self.optimizer = optimizer
         self.num_folds = num_folds
-        self.use_crf = use_crf
+        self.use_crf = self.model.use_crf if hasattr(self.model, 'use_crf') else False
         
         self.device = torch.device( config.device if torch.cuda.is_available() else 'cpu')
         self.model.to( self.device )
@@ -42,6 +42,7 @@ class Trainer:
             avg_loss = 0.0
             self.model.train()
 
+            print('*****************************************************************************************\n')
             for i,batch in enumerate( tqdm(train_dataloader) ):
 
                 self.optimizer.zero_grad()
@@ -56,7 +57,7 @@ class Trainer:
                 targets = targets * mask.long()
                 targets = targets.view( -1 ) # concat every instance
 
-                outputs = self.model( batch, mask= mask.float().unsqueeze(2) )
+                outputs = self.model( batch, mask= mask.unsqueeze(2).float() )
 
                 if self.use_crf:
                     loss = outputs
@@ -65,18 +66,17 @@ class Trainer:
                     outputs = outputs.view( -1, 3 )
                     loss = self.loss_function( outputs, targets )
 
-                avg_loss += loss.item()
                 loss.backward()
                 optimizer.step()
 
-            print('loss ',avg_loss/( i + 1 ), 'trainstep ', epoch)
+            print('loss ',loss.item(), 'trainstep ', epoch)
             candidate_best, res = self.evaluate(test_dataloader, current_best= current_best,path_save_best_model= model_save_path )            
             
             if current_best < candidate_best:
                 current_best = candidate_best
                 best_res = res
             # gc.collect()
-
+        print('*****************************************************************************************\n')
         return current_best, best_res
 
     def evaluate(self, test_dataloader,current_best= None, path_save_best_model= None):
@@ -89,10 +89,9 @@ class Trainer:
 
                 targets = batch[ 'targets' ]
                 targets = pack_padded_sequence( targets, batch['original_review_length'], batch_first= True, enforce_sorted= False )
-                targets,_ = pad_packed_sequence( targets, batch_first= True, padding_value= 3 )
+                targets,_ = pad_packed_sequence( targets, batch_first= True, padding_value= config.PAD )
                 
                 mask = ( targets < 3.0 )
-                print('targets',targets.shape)
                 targets = targets.view( -1 ) # concat every instance
 
                 mask = mask.unsqueeze(2).float()
@@ -121,7 +120,7 @@ class Trainer:
         
         with open( stats_save_path,'w' ) as f:
 
-            if self.num_folds == -1:
+            if self.num_folds <= 1:
                 result = self._train(self.train_dataset, self.test_dataset, num_epochs, model_save_path, stats_save_path)
                 headers = '\t'.join( [ str( header ) for header, _ in result[ 1 ].items() ]) + '\n'         
                 string_results = '\t'.join( [ str( score ) for _, score in result[ 1 ].items() ]) + '\n'
@@ -165,12 +164,12 @@ if __name__ == "__main__":
     train_dataset = ReviewDataset('./datasets/train_data.tsv', preprocessed= True, vocab= vocab)
     test_dataset = ReviewDataset('./datasets/test_data.tsv', preprocessed= True, vocab= vocab)
     
-    model = AttentionAspectionExtraction( vocab, embedding_path= config.word_embedding_path, use_crf= False )
+    model = AttentionAspectionExtraction( vocab, embedding_path= config.word_embedding_path, use_crf= True )
 
-    weight=tensor([ 0.05, 0.475, 0.475 ]).to( config.device )
+    weight=tensor([ 0.2, 0.4, 0.4 ]).to( config.device )
     loss_function = nn.NLLLoss(weight= weight)
     # loss_function = nn.NLLLoss()
     optimizer = torch.optim.Adam(model.parameters())
 
-    trainer = Trainer(model, train_dataset, test_dataset, loss_function, optimizer, num_folds= 10, use_crf= False )
+    trainer = Trainer(model, train_dataset, test_dataset, loss_function, optimizer, num_folds= 10 )
     trainer.run(config.num_epochs, config.model_save_path )

@@ -68,24 +68,28 @@ class AttentionAspectionExtraction(nn.Module):
 
     def forward( self, inputs, mask= None, get_predictions= False ):
         
+        if mask is None:
+            mask = torch.ones((x.shape[0], x.shape[1], 1), dtype= torch.uint8)
+
+        # softmax_mask = mask
+ 
         review = inputs[ 'review' ]
         review_lengths = inputs['original_review_length']
 
         review = self.embedding( review )
         review = pack_padded_sequence(review, review_lengths, batch_first= True, enforce_sorted= False)
-      
+
         review_h, _ = self.encoder( review )
         review_h, _ = pad_packed_sequence( review_h, batch_first= True, padding_value= 0.0 )
+        alpha = torch.tanh( torch.bmm( torch.matmul( review_h, self.weight_m ), torch.transpose(review_h, 1, 2)  ) + self.bias_m )
 
-        # alpha = torch.nn.functional.softmax( torch.tanh( torch.bmm( torch.matmul( review_h, self.weight_m ), torch.transpose(review_h, 1, 2)  ) + self.bias_m ) , dim= 1 )
+        alpha = torch.nn.functional.softmax( alpha , dim= 2 )
+
+        s_i = torch.bmm( alpha, review_h )
         
-        # s_i = torch.bmm( alpha, review_h )
-        s_i = review_h
         x = torch.tanh( self.w_r( s_i ) ).contiguous() 
-
-        if mask is None:
-            mask = torch.ones((x.shape[0], x.shape[1]))
-
+        
+        
         if self.use_crf:
             targets = inputs[ 'targets' ]
             targets = pack_padded_sequence(targets, inputs['original_review_length'], batch_first= True, enforce_sorted= False)
