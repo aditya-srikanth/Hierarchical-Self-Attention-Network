@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 import config
 from data_utils import ReviewDataset, Vocab, Review, subfinder, generate_bio_tags, create_embedding_matrix, evaluation_metrics
-from model import AttentionAspectionExtraction,BaseLineLSTM
+from model import AttentionAspectionExtraction, BaseLineLSTM, MultiHeadAttentionAspectionExtraction
 
 class Trainer:
     def __init__(self, model, train_dataset, test_dataset, loss_function, optimizer, num_folds = 1):
@@ -163,7 +163,7 @@ if __name__ == "__main__":
     train_dataset = ReviewDataset('./datasets/train_data.tsv', preprocessed= True, vocab= vocab)
     test_dataset = ReviewDataset('./datasets/test_data.tsv', preprocessed= True, vocab= vocab)
     
-    model = AttentionAspectionExtraction( vocab, embedding_path= config.word_embedding_path, use_crf= False )
+    model = MultiHeadAttentionAspectionExtraction( vocab, embedding_path= config.word_embedding_path, num_heads= 2, use_crf= False )
 
     weight=tensor([ 0.2, 0.4, 0.4 ]).to( config.device )
     loss_function = nn.NLLLoss(weight= weight)

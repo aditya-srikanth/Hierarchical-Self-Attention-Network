@@ -24,18 +24,21 @@ def evaluation_metrics(predictions, targets):
     fp = 0
     fn = 0
 
-    print( predictions, predictions.shape, targets.shape )
-    print(sum((targets == predictions).float()))
     for i in range( len( predictions ) ):
         
         if targets[i] == config.PAD: # special padding value, ignore this
             continue 
 
         elif predictions[i] == config.bio_dict['O'] and targets[i] == config.bio_dict['O']:
+
             tn += 1
+
         elif targets[i] == config.bio_dict['O'] and predictions[i] != config.bio_dict['O']:
+
             fp += 1
+
         elif targets[i] == config.bio_dict['B']: # B tag seen
+
             matched = True
             begin = i
             while   i < len( predictions ) and targets[i] != config.bio_dict['O'] and targets[i] != config.PAD and \
