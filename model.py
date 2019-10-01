@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from pprint import pprint
 from sklearn.metrics import precision_recall_fscore_support, accuracy_score
 from torchcrf import CRF
+import copy 
 
 import config
 from data_utils import create_embedding_matrix
@@ -70,7 +71,7 @@ class AttentionAspectionExtraction(nn.Module):
     def forward( self, inputs, mask= None, get_predictions= False ):
         
         if mask is None:
-            mask = torch.ones((x.shape[0], x.shape[1], 1), dtype= torch.uint8, device=self.device) # shape ( batch_size, sequence_length, 1 )
+            mask = torch.ones((inputs['review'].shape[0], inputs['review'].shape[1], 1), dtype= torch.uint8, device=self.device) # shape ( batch_size, sequence_length, 1 )
 
         softmax_mask = (mask - 1) * 10e10
         softmax_mask = softmax_mask.transpose(1,2)
@@ -168,13 +169,6 @@ class MultiHeadAttentionAspectionExtraction(nn.Module):
 
     def forward( self, inputs, mask= None, get_predictions= False ):
         
-        # if mask is None:
-        #     mask = torch.ones((x.shape[0], x.shape[1], 1), dtype= torch.uint8, device=self.device) # shape ( batch_size, sequence_length, 1 )
-
-        # softmax_mask = (mask - 1) * 10e10
-        # softmax_mask = softmax_mask.transpose(1,2)
-        # softmax_mask = softmax_mask.to( self.device )
-        
         review = inputs[ 'review' ]
         review_lengths = inputs['original_review_length']
 
@@ -187,7 +181,6 @@ class MultiHeadAttentionAspectionExtraction(nn.Module):
         alpha = torch.matmul( review_h, self.weight_m )  # ( batch_size, num_heads, seq_len, hidden_dim )
         alpha = torch.matmul( alpha, torch.transpose(review_h, 2, 3) ) # ( batch_size, num_heads, seq_len, seq_len )
         alpha = torch.tanh( alpha )
-        # alpha = alpha + softmax_mask
         
         alpha = torch.nn.functional.softmax( alpha , dim= 3 ) # ( batch_size, num_heads,sequence_length, attention_scores )
         

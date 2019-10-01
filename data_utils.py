@@ -1,6 +1,8 @@
 import config
 import re
+import spacy
 from spacy.tokenizer import Tokenizer
+from spacy.pipeline import Tagger
 from spacy.lang.en import English
 from pprint import pprint
 from torch.utils.data import Dataset, DataLoader
@@ -200,13 +202,14 @@ def generate_bio_tags( start_end_indices, max_length):
     return bio_tags
 
 class Review:
-    def __init__( self, review_id, text, aspect_term= None ):
+    def __init__( self, review_id, text, aspect_term= None, pos_tags= None ):
         assert isinstance(review_id,str)
         assert isinstance(text, str)
         
         self.review_id = review_id
         self.text = text
         self.aspect_terms = aspect_term
+        self.pos_tags = pos_tags
         
         self.review_length = None
         self.tokenized_text = None # tokenized after the Dataset is parsed by the Vocab
@@ -330,11 +333,11 @@ class ReviewDataset(Dataset):
 
 class Vocab:
 
-    def __init__( self, texts ):
+    def __init__( self, texts, use_pos= False):
         """
         :type texts: list of strings or Records
         :param texts: text of the reviews is either directly given or is extracted from the objects 
-        Assumption: list contains elements of one kind alone
+        Assumption: list contains elements of one kind alone: either strings or Review objects.
         """
 
         self.word_to_idx = {}
@@ -350,28 +353,38 @@ class Vocab:
         self.index_to_word[1] = '<unk>'
         self.size_of_vocab += 1
 
-        self.nlp = English()
-        self.tokenizer = self.nlp.Defaults.create_tokenizer(self.nlp)
+        self.use_pos = use_pos
+        self.pos_tags = {}
+
+        self.nlp = spacy.load('en_core_web_sm')
+
         if isinstance( texts[0], str ):
-            for doc in self.tokenizer.pipe( texts, batch_size= 100 ):
+            for doc in self.nlp.pipe( texts, batch_size= 100 ):
                 for token in doc:
                     if not token.text in self.word_to_idx:
                         self.word_to_idx[ token.text ] = self.size_of_vocab 
                         self.index_to_word[ self.size_of_vocab ] = token.text
+
+                        if self.use_pos:
+                            self.pos_tags[ token.text ] = token.tag_
                         self.size_of_vocab += 1
                           
             
         elif isinstance( texts[0], Review ):
-            for review in texts:
-                tokens = self.tokenizer( review.text )
-                for token in tokens:
+            texts =  [ review.text for review in texts ]
+
+            for doc in self.nlp.pipe( texts, batch_size= 100 ):
+                for token in doc:
                     if not token.text in self.word_to_idx:
                         self.word_to_idx[ token.text ] = self.size_of_vocab 
                         self.index_to_word[ self.size_of_vocab ] = token.text
-                        self.size_of_vocab += 1
-        
+
+                        if self.use_pos:
+                            self.pos_tags[ token.text ] = token.tag_
+                        self.size_of_vocab += 1        
         else:
             raise Exception('input should be a list of stings or a list of Review objects')
+
 
     def print_vocab( self ):
         
@@ -394,19 +407,23 @@ class Vocab:
         """    
         if isinstance( reviews, list ): 
             text_sequences = []
+            pos_tags = []
             num_tokens = 0
             num_unk_tokens = 0
             for review in reviews:
                 # tokenize and then convert into sequence numbers
                 review_sequences = []
-                for token in self.tokenizer( review ):
+                review_pos_tags = []
+                for token in self.nlp( review ):
                     # sequence numbers are generated only for those sentences that are present in the vocab
                     if token.text in self.word_to_idx:
                         num_tokens += 1
                         review_sequences.append( self.word_to_idx[ token.text ] )
+                        review_pos_tags.append( self.pos_tags[ token.text ] )
                     else:
                         num_unk_tokens += 1
                         review_sequences.append( self.word_to_idx[ '<unk>' ] )
+                        review_pos_tags.append( 'NA' )
 
                 text_sequences.append( review_sequences )
             print('num tokens: ',num_tokens,' num unk tokens: ', num_unk_tokens, ' percentage: ', 100*(num_unk_tokens/num_tokens))
@@ -414,7 +431,7 @@ class Vocab:
         
         elif isinstance(reviews, str):
             review_sequences = []
-            for token in self.tokenizer( reviews ):
+            for token in self.nlp( reviews ):
                 # sequence numbers are generated only for those sentences that are present in the vocab
                 if token.text in self.word_to_idx:
                     review_sequences.append( self.word_to_idx[ token.text ] )
@@ -457,18 +474,18 @@ class Vocab:
         return tensor( input_sequence ), tensor( original_length, dtype= int32)
 
     @classmethod
-    def from_files( cls, file_list ):
+    def from_files( cls, file_list, use_pos= False ):
         texts = []
         for file_name in file_list:
             print(file_name)
             texts += parse_xml( file_name )
 
-        return cls(texts)
+        return cls(texts, use_pos = use_pos)
 
 if __name__ == "__main__":
 
     # process the raw xml
-    vocab = Vocab.from_files( [config.dataset_path, config.test_dataset_path] )
+    vocab = Vocab.from_files( [config.dataset_path, config.test_dataset_path], use_pos=True )
     
     dataset = ReviewDataset(config.dataset_path, vocab= vocab)
     dataset.write_to_file('./datasets/train_data.tsv')
@@ -484,4 +501,4 @@ if __name__ == "__main__":
     #     input()
     x = [0,1,2,1,2,0]
     y = [0,1,2,1,0,0]
-    print(compute_accuracy(y, x))
+    print(evaluation_metrics(y, x))

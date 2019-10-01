@@ -12,8 +12,8 @@ model_save_path = './model_weights/Rest_ASE_Glove_attention_CRF_concat_embedding
 save_stats_path = './results/Rest_ASE_Glove_attention_concat_CRF_embedding_unweighted.tsv'
 
 bio_dict = { 'B': 2, 'I':1, 'O':0 }
-device = 'cuda'
-# device = 'cpu'
+# device = 'cuda'
+device = 'cpu'
 
 # hyper parameters.
 num_epochs = 100
