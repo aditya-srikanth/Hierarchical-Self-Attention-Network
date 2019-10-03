@@ -11,6 +11,8 @@ from torch import int32, float32
 import numpy as np
 import os
 import torch
+import json
+
 
 try: 
     import xml.etree.cElementTree as ET 
@@ -127,11 +129,11 @@ def create_embedding_matrix( vocab, embedding_dim, device= config.device, datase
         print('loaded pretrained matrix, ', ' num mapped words: ', num_mapped_words)
         if save_weight_path != None:
             np.save(save_weight_path, embedding_matrix)
-        return tensor( embedding_matrix, requires_grad= True, dtype= float32).to(device)
+        return tensor( embedding_matrix, requires_grad= False, dtype= float32).to(device)
 
     print('loaded trainable embedding matrix')
     
-    return tensor( embedding_matrix, requires_grad= True, dtype= float32).to(device)
+    return tensor( embedding_matrix, requires_grad= False, dtype= float32).to(device)
 
 def parse_xml(file_path):
 
@@ -182,9 +184,10 @@ def parse_xml(file_path):
     return review_list
 
 def subfinder(mylist, pattern):
+
     for i in range(len(mylist)):
         if mylist[i] == pattern[0] and mylist[i:i+len(pattern)] == pattern:
-            return ( i, i+len(pattern) - 1 )
+            return ( i, i + len( pattern ) - 1 )
 
 def generate_bio_tags( start_end_indices, max_length):
 
@@ -200,6 +203,13 @@ def generate_bio_tags( start_end_indices, max_length):
         bio_tags[ start_index:end_index + 1 ] =   tensor([ config.bio_dict['B'] ] + [ config.bio_dict['I'] ] * (end_index - start_index ))
 
     return bio_tags
+
+def encode_pos_tags( tags, num_pos_tags, max_length ):
+     
+    one_hot_tags = torch.zeros([ max_length, num_pos_tags ], dtype= float32 )
+    for i,tag in enumerate( tags[0] ):
+        one_hot_tags[i,tag] = 1 
+    return one_hot_tags
 
 class Review:
     def __init__( self, review_id, text, aspect_term= None, pos_tags= None ):
@@ -235,8 +245,11 @@ class Review:
     def set_review_length(self, length):
         self.review_length = length
 
+    def set_pos_tags(self, tags):
+        self.pos_tags = tags
+
 class ReviewDataset(Dataset):
-    def __init__( self, dataset_path, device= config.device, preprocessed= False, vocab= None ):
+    def __init__( self, dataset_path, device= config.device, preprocessed= False, vocab= None, store_word2idx= True ):
     
         self.device = device
         self.max_review_length = -1
@@ -262,16 +275,14 @@ class ReviewDataset(Dataset):
                     
                     self.review_list.append( Review( review_id, review_text, aspect_term ) )
             print('loading file complete')
-        
-        self.tokenizer = Vocab( self.review_list ) if vocab == None else vocab
-        with open( './glove/mapping.json', 'w' ) as f:
-                import json
-                print('creating a mapping file')
-                json.dump( self.tokenizer.get_vocab(), f )
+        print('vocab gen')
+        self.tokenizer = Vocab( self.review_list, store= store_word2idx ) if vocab == None else vocab
+        print('vocab gen complete')
+        print('review processing')
         for review in self.review_list:
             
-            review.tokenized_text = self.tokenizer.convert_text_to_sequence_numbers( review.text )
-            
+            review.tokenized_text, pos_tags = self.tokenizer.convert_text_to_sequence_numbers( review.text, get_pos= True )
+
             if review.aspect_terms != None:
                 aspect_terms_tokens = []
                 aspect_terms_positions = []
@@ -293,9 +304,13 @@ class ReviewDataset(Dataset):
             padded_review, original_review_length = self.tokenizer.pad_sequence( review.tokenized_text, config.max_review_length )
             bio_tags = generate_bio_tags( review.aspect_positions, config.max_review_length )  
 
+            pos_tags = encode_pos_tags( pos_tags, len(config.POS_MAP), config.max_review_length )
+            review.set_pos_tags( pos_tags )
             review.set_tokenized_text( padded_review )
             review.set_review_length( original_review_length )
             review.set_tags( bio_tags )
+
+        print('review processing complete')
 
     def write_to_file(self, filepath ):
         print('writing to file')
@@ -318,22 +333,20 @@ class ReviewDataset(Dataset):
         return len( self.review_list )
 
     def __getitem__(self, idx):
-
         data_item = self.review_list[idx]
-        # padded_review, original_review_length = self.tokenizer.pad_sequence( data_item.tokenized_text, config.max_review_length )
-        # bio_tags = generate_bio_tags( data_item.aspect_positions, config.max_review_length )
         
         item = {    
                     'review': data_item.tokenized_text,
                     'original_review_length': data_item.review_length,
-                    'targets': data_item.tags
+                    'targets': data_item.tags,
+                    'pos_tags': data_item.pos_tags
                 }
 
         return item
 
 class Vocab:
 
-    def __init__( self, texts, use_pos= False):
+    def __init__( self, texts, store= False):
         """
         :type texts: list of strings or Records
         :param texts: text of the reviews is either directly given or is extracted from the objects 
@@ -353,38 +366,37 @@ class Vocab:
         self.index_to_word[1] = '<unk>'
         self.size_of_vocab += 1
 
-        self.use_pos = use_pos
-        self.pos_tags = {}
-
         self.nlp = spacy.load('en_core_web_sm')
+        if os.path.isfile('./glove/mapping.json'):
+            with open('./glove/mapping.json', 'r') as f:
+                self.word_to_idx = json.load( f )
+            self.index_to_word = { v: k for k,v in self.word_to_idx.items()}
+        else:    
+            if isinstance( texts[0], str ):
+                for doc in self.nlp.pipe( texts, batch_size= 100 ):
+                    for token in doc:
+                        if not token.text in self.word_to_idx:
+                            self.word_to_idx[ token.text ] = self.size_of_vocab 
+                            self.index_to_word[ self.size_of_vocab ] = token.text
+                            self.size_of_vocab += 1
+                            
+                
+            elif isinstance( texts[0], Review ):
+                texts =  [ review.text for review in texts ]
 
-        if isinstance( texts[0], str ):
-            for doc in self.nlp.pipe( texts, batch_size= 100 ):
-                for token in doc:
-                    if not token.text in self.word_to_idx:
-                        self.word_to_idx[ token.text ] = self.size_of_vocab 
-                        self.index_to_word[ self.size_of_vocab ] = token.text
-
-                        if self.use_pos:
-                            self.pos_tags[ token.text ] = token.tag_
-                        self.size_of_vocab += 1
-                          
+                for doc in self.nlp.pipe( texts, batch_size= 100 ):
+                    for token in doc:
+                        if not token.text in self.word_to_idx:
+                            self.word_to_idx[ token.text ] = self.size_of_vocab 
+                            self.index_to_word[ self.size_of_vocab ] = token.text
+                            self.size_of_vocab += 1        
+            else:
+                raise Exception('input should be a list of stings or a list of Review objects')
             
-        elif isinstance( texts[0], Review ):
-            texts =  [ review.text for review in texts ]
-
-            for doc in self.nlp.pipe( texts, batch_size= 100 ):
-                for token in doc:
-                    if not token.text in self.word_to_idx:
-                        self.word_to_idx[ token.text ] = self.size_of_vocab 
-                        self.index_to_word[ self.size_of_vocab ] = token.text
-
-                        if self.use_pos:
-                            self.pos_tags[ token.text ] = token.tag_
-                        self.size_of_vocab += 1        
-        else:
-            raise Exception('input should be a list of stings or a list of Review objects')
-
+            if store:
+                with open( './glove/mapping.json', 'w' ) as f:
+                        print('creating a mapping file')
+                        json.dump( self.word_to_idx, f )
 
     def print_vocab( self ):
         
@@ -398,7 +410,7 @@ class Vocab:
 
         return self.size_of_vocab
 
-    def convert_text_to_sequence_numbers(self, reviews):
+    def convert_text_to_sequence_numbers(self, reviews, get_pos= False):
         """ 
         :type reviews: list of strings or a string
         :param reviews: review's text
@@ -419,25 +431,39 @@ class Vocab:
                     if token.text in self.word_to_idx:
                         num_tokens += 1
                         review_sequences.append( self.word_to_idx[ token.text ] )
-                        review_pos_tags.append( self.pos_tags[ token.text ] )
+
                     else:
                         num_unk_tokens += 1
                         review_sequences.append( self.word_to_idx[ '<unk>' ] )
-                        review_pos_tags.append( 'NA' )
+
+                    review_pos_tags.append( config.POS_MAP[ token.tag_ ] )
 
                 text_sequences.append( review_sequences )
-            print('num tokens: ',num_tokens,' num unk tokens: ', num_unk_tokens, ' percentage: ', 100*(num_unk_tokens/num_tokens))
-            return text_sequences
+                pos_tags.append( review_pos_tags )
+            print('num tokens: ',num_tokens,' num unk tokens: ', num_unk_tokens, ' percentage not matched: ', 100*(num_unk_tokens/num_tokens))
+            if get_pos:
+                return text_sequences, pos_tags
+            else:
+                return text_sequences
         
         elif isinstance(reviews, str):
             review_sequences = []
+            pos_tags = []
+            review_pos_tags = []
             for token in self.nlp( reviews ):
                 # sequence numbers are generated only for those sentences that are present in the vocab
                 if token.text in self.word_to_idx:
                     review_sequences.append( self.word_to_idx[ token.text ] )
                 else:
                     review_sequences.append( self.word_to_idx[ '<unk>' ] )
-            return review_sequences
+                
+                review_pos_tags.append( config.POS_MAP[ token.tag_ ] )
+            pos_tags.append( review_pos_tags )
+
+            if get_pos:
+                return review_sequences, pos_tags
+            else:
+                return review_sequences
             
     def convert_sequence_numbers_to_text( self, reviews_sequences ):
         """ Converts list of sequence numbers to text
@@ -474,18 +500,21 @@ class Vocab:
         return tensor( input_sequence ), tensor( original_length, dtype= int32)
 
     @classmethod
-    def from_files( cls, file_list, use_pos= False ):
+    def from_files( cls, file_list, store=False ):
         texts = []
         for file_name in file_list:
             print(file_name)
             texts += parse_xml( file_name )
 
-        return cls(texts, use_pos = use_pos)
+        return cls(texts, store= store)
+
+    def __len__(self):
+        return len(self.word_to_idx)
 
 if __name__ == "__main__":
 
     # process the raw xml
-    vocab = Vocab.from_files( [config.dataset_path, config.test_dataset_path], use_pos=True )
+    vocab = Vocab.from_files( [config.dataset_path, config.test_dataset_path], store= True )
     
     dataset = ReviewDataset(config.dataset_path, vocab= vocab)
     dataset.write_to_file('./datasets/train_data.tsv')

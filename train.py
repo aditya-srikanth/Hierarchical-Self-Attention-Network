@@ -49,11 +49,13 @@ class Trainer:
                 batch = { k : v.to( self.device ) for k,v in batch.items() }
                 targets = batch[ 'targets' ]
                 targets = pack_padded_sequence( targets, batch['original_review_length'], batch_first= True, enforce_sorted= False)
-                targets, _ = pad_packed_sequence( targets, batch_first=True, padding_value= 3 )
+                targets, _ = pad_packed_sequence( targets, batch_first=True, padding_value= config.PAD )
                 
                 mask = ( targets < 3 )
-                
                 targets = targets * mask.long()
+                
+                batch['targets'] = targets
+
                 targets = targets.view( -1 ) # concat every instance
 
                 outputs = self.model( batch, mask= mask.unsqueeze(2).float() )
@@ -91,6 +93,9 @@ class Trainer:
                 targets,_ = pad_packed_sequence( targets, batch_first= True, padding_value= config.PAD )
                 
                 mask = ( targets < 3.0 )
+
+                batch['targets'] = targets * mask.long()
+
                 targets = targets.view( -1 ) # concat every instance
 
                 mask = mask.unsqueeze(2).float()
@@ -163,12 +168,11 @@ if __name__ == "__main__":
     train_dataset = ReviewDataset('./datasets/train_data.tsv', preprocessed= True, vocab= vocab)
     test_dataset = ReviewDataset('./datasets/test_data.tsv', preprocessed= True, vocab= vocab)
     
-    model = AttentionAspectionExtraction( vocab, embedding_path= config.word_embedding_path, num_heads= 2, use_crf= False )
+    model = MultiHeadAttentionAspectionExtraction( vocab, embedding_path= config.word_embedding_path, pos_dim= len( config.POS_MAP ), num_heads= 8, use_crf= True )
 
     weight=tensor( [ 0.2, 0.4, 0.4 ] ).to( config.device )
     loss_function = nn.NLLLoss(weight= weight)
-    # loss_function = nn.NLLLoss()
-    optimizer = torch.optim.Adam(model.parameters())
+    optimizer = torch.optim.SGD(model.parameters(), 0.001, momentum= 0.01)
 
-    trainer = Trainer(model, train_dataset, test_dataset, loss_function, optimizer, num_folds= 10 )
+    trainer = Trainer(model, train_dataset, test_dataset, loss_function, optimizer )
     trainer.run(config.num_epochs, config.model_save_path )
