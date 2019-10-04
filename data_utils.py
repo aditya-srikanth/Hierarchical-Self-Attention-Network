@@ -371,6 +371,7 @@ class Vocab:
             with open('./glove/mapping.json', 'r') as f:
                 self.word_to_idx = json.load( f )
             self.index_to_word = { v: k for k,v in self.word_to_idx.items()}
+            self.size_of_vocab = len(self.word_to_idx)
         else:    
             if isinstance( texts[0], str ):
                 for doc in self.nlp.pipe( texts, batch_size= 100 ):

@@ -136,18 +136,18 @@ class Trainer:
             elif self.num_folds > 1:
                 dataset = ConcatDataset( [ self.train_dataset, self.test_dataset ] )
                 dataset_size = len( dataset )
-                fold_size = dataset_size // self.num_folds
-                lengths = [ fold_size ] * self.num_folds # creates equal size folds 
-                lengths.append( dataset_size - sum( lengths ) )
-                splits = random_split( dataset, lengths )
+                test_size = int( dataset_size * 0.2 )
+                train_size = dataset_size - test_size
+                lengths = [ train_size, test_size ] 
                 
                 for i in range( self.num_folds ):
                     print(' fold number: ',i)
                     self.model.weight_init()
 
-                    test_dataset = splits[ i ]
-                    indices = [ j for j in range( self.num_folds ) if j != i ]
-                    train_dataset = ConcatDataset( [ splits[ index ] for index in indices ] )
+                    splits = random_split( dataset, lengths )
+                    train_dataset = splits[ 0 ]
+                    test_dataset  = splits[ 1 ]
+                    
                     result = self._train( train_dataset, test_dataset, num_epochs, model_save_path, stats_save_path )
                 
 
@@ -168,7 +168,7 @@ if __name__ == "__main__":
     train_dataset = ReviewDataset('./datasets/train_data.tsv', preprocessed= True, vocab= vocab)
     test_dataset = ReviewDataset('./datasets/test_data.tsv', preprocessed= True, vocab= vocab)
     
-    model = MultiHeadAttentionAspectionExtraction( vocab, embedding_path= config.word_embedding_path, pos_dim= len( config.POS_MAP ), num_heads= 8, use_crf= True )
+    model = AttentionAspectionExtraction( vocab, embedding_path= config.word_embedding_path, pos_dim= len( config.POS_MAP ), num_heads= 8, use_crf= True )
 
     weight=tensor( [ 0.2, 0.4, 0.4 ] ).to( config.device )
     loss_function = nn.NLLLoss(weight= weight)
