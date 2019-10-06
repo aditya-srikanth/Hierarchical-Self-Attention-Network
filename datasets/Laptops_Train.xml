@@ -69,7 +69,7 @@
             <aspectTerm term="GUI" polarity="negative" from="89" to="92"/>
             <aspectTerm term="screen" polarity="negative" from="94" to="100"/>
             <aspectTerm term="power light" polarity="neutral" from="111" to="122"/>
-            <aspectTerm term="hard drive ligh" polarity="negative" from="131" to="146"/>
+            <aspectTerm term="hard drive light" polarity="negative" from="131" to="146"/>
         </aspectTerms>
     </sentence>
     <sentence id="1788">
@@ -3968,9 +3968,9 @@
         </aspectTerms>
     </sentence>
     <sentence id="1650">
-        <text>With the macbook pro it comes with freesecuritysoftware to protect it from viruses and other intrusive things from downloads and internet surfing or emails.</text>
+        <text>With the macbook pro it comes with free security software to protect it from viruses and other intrusive things from downloads and internet surfing or emails.</text>
         <aspectTerms>
-            <aspectTerm term="securitysoftware" polarity="positive" from="39" to="55"/>
+            <aspectTerm term="security software" polarity="positive" from="39" to="55"/>
         </aspectTerms>
     </sentence>
     <sentence id="1229">
@@ -9856,7 +9856,7 @@
     <sentence id="3017">
         <text>The improvements to the OS have been relatively gradual, but substantive.</text>
         <aspectTerms>
-            <aspectTerm term="O" polarity="positive" from="24" to="25"/>
+            <aspectTerm term="OS" polarity="positive" from="24" to="25"/>
         </aspectTerms>
     </sentence>
     <sentence id="1836">
@@ -10278,7 +10278,7 @@
         <text>( The iBook backup also uses a firewire connection).</text>
         <aspectTerms>
             <aspectTerm term="iBook backup" polarity="neutral" from="6" to="18"/>
-            <aspectTerm term="firewire connectio" polarity="neutral" from="31" to="49"/>
+            <aspectTerm term="firewire connection" polarity="neutral" from="31" to="49"/>
         </aspectTerms>
     </sentence>
     <sentence id="2766">
@@ -14442,7 +14442,7 @@
     <sentence id="1797">
         <text>It's now all commodity hardware.</text>
         <aspectTerms>
-            <aspectTerm term="commodity hardwar" polarity="neutral" from="13" to="30"/>
+            <aspectTerm term="commodity hardware" polarity="neutral" from="13" to="30"/>
         </aspectTerms>
     </sentence>
     <sentence id="2272">

@@ -1653,7 +1653,7 @@
         <text>But for now, this laptop is still a workhorse.</text>
     </sentence>
     <sentence id="456:1">
-        <text>In fact I still use manyLegacy programs (Appleworks, FileMaker Pro, Quicken, Photoshop etc)!</text>
+        <text>In fact I still use many Legacy programs (Appleworks, FileMaker Pro, Quicken, Photoshop etc)!</text>
         <aspectTerms>
             <aspectTerm term="Legacy programs" polarity="neutral"  from="24" to="39"/>
             <aspectTerm term="Appleworks" polarity="neutral"  from="41" to="51"/>

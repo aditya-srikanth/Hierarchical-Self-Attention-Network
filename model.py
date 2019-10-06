@@ -71,6 +71,7 @@ class AttentionAspectionExtraction(nn.Module):
         self.pos_dim = pos_dim        
         self.device = kwargs.get( 'device', config.device )
         self.vocab = vocab
+        print('pos_dim ',pos_dim)
         rnn_model = kwargs.get( 'rnn_model', config.rnn_model )
         if rnn_model == 'gru':   
             self.encoder = nn.GRU(
@@ -260,15 +261,13 @@ class MultiHeadAttentionAspectionExtraction(nn.Module):
 
 class BaseLineLSTM(nn.Module):
     
-    def __init__(self, vocab, embedding_dim= config.word_embeding_dim, hidden_dim= config.hidden_dim, output_dim= len( config.bio_dict ), pos_dim= -1, **kwargs):
+    def __init__(self, vocab, embedding_dim= config.word_embeding_dim, hidden_dim= config.hidden_dim, output_dim= len( config.bio_dict ), pos_dim= -1, use_crf= False, **kwargs):
         super(BaseLineLSTM, self).__init__()
         self.embedding_dim = embedding_dim
         self.hidden_dim = hidden_dim
-        self.embedding = nn.Embedding.from_pretrained( 
-                                                        create_embedding_matrix(vocab, self.embedding_dim, 
-                                                        dataset_path= config.word_embedding_path,  
-                                                        save_weight_path= config.embedding_save_path )
-                                                    )
+        self.embedding = self.embedding = nn.Embedding( len(vocab), self.embedding_dim )
+        self.vocab = vocab
+
         self.output_dim = output_dim
         self.pos_dim = pos_dim
         rnn_model = kwargs.get('rnn_model', config.rnn_model)
@@ -290,41 +289,55 @@ class BaseLineLSTM(nn.Module):
                                     dropout = kwargs.get('dropout', config.dropout)
                                 )
         
-        self.weight_m = nn.Parameter( torch.rand( self.hidden_dim * 2, self.hidden_dim * 2 ) )
-        self.bias_m = nn.Parameter( torch.rand( 1 ) )
-        
         self.w_r = nn.Linear( self.hidden_dim * 2, output_dim )
-        
+
+        self.use_crf = use_crf
+        if self.use_crf:
+            self.crf = CRF( self.output_dim, batch_first= True )
+        self.drouput_layer = torch.nn.Dropout(p=config.dropout, inplace=True)
         self.weight_init()
 
     def weight_init(self):
         for p in self.parameters():
-            if p.requires_grad:
-                if len(p.shape) > 1:
-                    torch.nn.init.xavier_uniform_(p)
-                else:
-                    stdv = 1. / (p.shape[0] ** 0.5)
-                    torch.nn.init.uniform_(p, a=-stdv, b=stdv)
+            if len(p.shape) > 1:
+                torch.nn.init.xavier_uniform_(p)
+            else:
+                stdv = 1. / (p.shape[0] ** 0.5)
+                torch.nn.init.uniform_(p, a=-stdv, b=stdv)
+        self.embedding.weight = nn.Parameter(create_embedding_matrix(self.vocab, self.embedding_dim, 
+                                                        dataset_path= config.word_embedding_path,  
+                                                        save_weight_path= config.embedding_save_path ))
 
-    def forward( self, inputs ):
+    def forward( self, inputs, mask= None, get_predictions= False ):
+        
+        if mask is None:
+            mask = torch.ones((inputs['review'].shape[0], inputs['review'].shape[1], 1), dtype= torch.uint8, device=self.device) # shape ( batch_size, sequence_length, 1 )
         
         review = inputs[ 'review' ]
         review_lengths = inputs['original_review_length']
 
         review = self.embedding( review )
+        if self.pos_dim != -1:
+            review = torch.cat([review, inputs['pos_tags']], dim= 2)
         review = pack_padded_sequence(review, review_lengths, batch_first= True, enforce_sorted= False)
 
         review_h, _ = self.encoder( review )
-        review_h, _ = pad_packed_sequence( review_h, batch_first= True, padding_value= 0.0 )
-        
+        review_h, _ = pad_packed_sequence( review_h, batch_first= True, padding_value= 0 ) # shape: ( batch_size, seq_len, hidden_dim )
+
+        review_h = self.drouput_layer( review_h )
+
         x = self.w_r( review_h ).contiguous() 
+        
+        if self.use_crf:
+            targets = inputs[ 'targets' ]
+            
+            mask = mask.squeeze_().type( torch.uint8 )
+            loss = self.crf( x, targets, mask = mask )
+            if get_predictions:
+                temp = self.crf.decode( x )
+                return - loss, torch.tensor( np.array( temp ) , dtype= torch.long, device= config.device)
+            
+            return - loss 
 
         x = nn.functional.log_softmax(x, dim= 2)
-        return x
-
-if __name__ == "__main__":
-    test = Attention(3)
-    x = torch.rand(3,2,3)
-    mask = torch.tensor([[1,1],[1,0],[1,0]],dtype=torch.float32)
-    print(mask.shape)
-    print(test(x, mask= mask))
+        return x * mask

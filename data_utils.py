@@ -144,15 +144,17 @@ def parse_xml(file_path):
     root = tree.getroot()
 
     for child in root:
+        
         sentence = child.find('text').text
         sentence = sentence.strip()
         sentence = re.sub(r'[\t]',' ',sentence)
-        sentence = re.sub(r'[^a-zA-Z0-9 !@#$%^&*()-_=+~`\'\":;.,/?]', '',sentence).lower()
+        sentence = re.sub(r'[^a-zA-Z0-9 !@#$%^&*()-_=+~`\'\":;.,/?]', ' ',sentence).lower()
         
         
-        for ch in ["\'s", "\'ve", "n\'t", "\'re", "\'m", "\'d", "\'ll", ",", ".", "!", "*", "/", "?", "(", ")", "\"", "-", ":"]:
+        for ch in ["\'s", "\'ve", "n\'t", "\'re", "\'m", "\'d", "\'ll", ",", ".", "!", "*", "/", "?", "(", ")", "\"", "-", ":", ";"]:
             sentence = sentence.replace(ch, " " + ch + " ")
-            
+        
+        
         sentence = ' '.join( sentence.split() )
 
         aspect_terms = child.find('aspectTerms')
@@ -164,9 +166,9 @@ def parse_xml(file_path):
                 
                 aspect = i.attrib['term'].strip()
                 aspect = re.sub(r'\t',' ',aspect)
-                aspect = re.sub(r'[^a-zA-Z0-9 !@#$%^&*()-_=+~`\'\":;.,/?]', '', aspect).lower()
+                aspect = re.sub(r'[^a-zA-Z0-9 !@#$%^&*()-_=+~`\'\":;.,/?]', ' ', aspect).lower()
                 
-                for ch in ["\'s", "\'ve", "n\'t", "\'re", "\'m", "\'d", "\'ll", ",", ".", "!", "*", "/", "?", "(", ")", "\"", "-", ":"]:
+                for ch in ["\'s", "\'ve", "n\'t", "\'re", "\'m", "\'d", "\'ll", ",", ".", "!", "*", "/", "?", "(", ")", "\"", "-", ":", ";"]:
                     aspect = aspect.replace(ch, " " + ch + " ")
                 
                 aspect = ' '.join( aspect.split() )
@@ -292,7 +294,7 @@ class ReviewDataset(Dataset):
                     aspect_term_positions = subfinder( review.tokenized_text, aspect_term_tokens )
                     if aspect_term_positions == None:
                         import sys
-                        print(review, aspect_term_tokens, aspect_term_positions,self.tokenizer.convert_sequence_numbers_to_text(aspect_term_tokens),self.tokenizer.convert_sequence_numbers_to_text(review.tokenized_text))
+                        print(review,'\naspect tokens: ',aspect_term_tokens,'\natp: ', aspect_term_positions,'\naspect text: ',self.tokenizer.convert_sequence_numbers_to_text(aspect_term_tokens),'\ninput text: ',self.tokenizer.convert_sequence_numbers_to_text(review.tokenized_text))
                         sys.exit()
                     aspect_terms_tokens.append( aspect_term_tokens )
                     aspect_terms_positions.append( aspect_term_positions )
@@ -346,7 +348,7 @@ class ReviewDataset(Dataset):
 
 class Vocab:
 
-    def __init__( self, texts, store= False):
+    def __init__( self, texts, store= True):
         """
         :type texts: list of strings or Records
         :param texts: text of the reviews is either directly given or is extracted from the objects 
@@ -368,6 +370,7 @@ class Vocab:
 
         self.nlp = spacy.load('en_core_web_sm')
         if os.path.isfile('./glove/mapping.json'):
+            print('pre-existing mapping file')
             with open('./glove/mapping.json', 'r') as f:
                 self.word_to_idx = json.load( f )
             self.index_to_word = { v: k for k,v in self.word_to_idx.items()}
@@ -517,18 +520,18 @@ if __name__ == "__main__":
     # process the raw xml
     vocab = Vocab.from_files( [config.dataset_path, config.test_dataset_path], store= True )
     
-    dataset = ReviewDataset(config.dataset_path, vocab= vocab)
-    dataset.write_to_file('./datasets/train_data.tsv')
-    dataset = ReviewDataset(config.test_dataset_path,vocab= vocab)
-    dataset.write_to_file('./datasets/test_data.tsv')
+    # dataset = ReviewDataset(config.dataset_path, vocab= vocab)
+    # dataset.write_to_file('./datasets/train_data.tsv')
+    # dataset = ReviewDataset(config.test_dataset_path,vocab= vocab)
+    # dataset.write_to_file('./datasets/test_data.tsv')
 
-    # dataloader = DataLoader(dataset, batch_size= 2, shuffle= True, num_workers= 1)
+    # # dataloader = DataLoader(dataset, batch_size= 2, shuffle= True, num_workers= 1)
 
-    # # testing
-    # for i,batch in enumerate(dataloader):
-    #     print('i', i)
-    #     pprint(batch)
-    #     input()
-    x = [0,1,2,1,2,0]
-    y = [0,1,2,1,0,0]
-    print(evaluation_metrics(y, x))
+    # # # testing
+    # # for i,batch in enumerate(dataloader):
+    # #     print('i', i)
+    # #     pprint(batch)
+    # #     input()
+    # x = [0,1,2,1,2,0]
+    # y = [0,1,2,1,0,0]
+    # print(evaluation_metrics(y, x))

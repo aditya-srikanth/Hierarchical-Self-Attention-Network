@@ -14,15 +14,17 @@ from data_utils import ReviewDataset, Vocab, Review, subfinder, generate_bio_tag
 from model import AttentionAspectionExtraction, BaseLineLSTM, MultiHeadAttentionAspectionExtraction
 
 class Trainer:
-    def __init__(self, model, train_dataset, test_dataset, loss_function, optimizer, num_folds = 1):
+    def __init__(self, model, train_dataset, test_dataset, optimizer, loss_function= None):
         
         self.train_dataset = train_dataset 
         self.test_dataset = test_dataset
         self.model = model
         self.loss_function = loss_function 
         self.optimizer = optimizer
-        self.num_folds = num_folds
         self.use_crf = self.model.use_crf if hasattr(self.model, 'use_crf') else False
+
+        if not self.use_crf and loss_function is None:
+            raise Exception(' Loss function must be specified when crf is not being used ')
         
         self.device = torch.device( config.device if torch.cuda.is_available() else 'cpu')
         self.model.to( self.device )
@@ -76,7 +78,7 @@ class Trainer:
             if current_best < candidate_best:
                 current_best = candidate_best
                 best_res = res
-            # gc.collect()
+            gc.collect()
         print('*****************************************************************************************\n')
         return current_best, best_res
 
@@ -104,7 +106,7 @@ class Trainer:
                     outputs = outputs.view(-1) # concatenate all predictions
                 else:
                     outputs = self.model( batch, mask= mask)
-                    outputs = outputs.view( -1, 3 )
+                    outputs = outputs.view( -1, self.model.output_dim )
                     outputs = torch.argmax( outputs, dim= 1 )
                 
                 
@@ -124,55 +126,26 @@ class Trainer:
         
         with open( stats_save_path,'w' ) as f:
 
-            if self.num_folds <= 1:
-                result = self._train(self.train_dataset, self.test_dataset, num_epochs, model_save_path, stats_save_path)
-                headers = '\t'.join( [ str( header ) for header, _ in result[ 1 ].items() ]) + '\n'         
-                string_results = '\t'.join( [ str( score ) for _, score in result[ 1 ].items() ]) + '\n'
-                
-                f.write(headers)
-                f.write(string_results)
-                f.flush()
-
-            elif self.num_folds > 1:
-                dataset = ConcatDataset( [ self.train_dataset, self.test_dataset ] )
-                dataset_size = len( dataset )
-                test_size = int( dataset_size * 0.2 )
-                train_size = dataset_size - test_size
-                lengths = [ train_size, test_size ] 
-                
-                for i in range( self.num_folds ):
-                    print(' fold number: ',i)
-                    self.model.weight_init()
-
-                    splits = random_split( dataset, lengths )
-                    train_dataset = splits[ 0 ]
-                    test_dataset  = splits[ 1 ]
-                    
-                    result = self._train( train_dataset, test_dataset, num_epochs, model_save_path, stats_save_path )
-                
-
-                    if i == 0:
-                        headers = '\t'.join( [ str( header ) for header, _ in result[ 1 ].items() ]) + '\n'
-                        f.write(headers)
-
-                    string_results = '\t'.join( [ str( score ) for _, score in result[ 1 ].items() ]) + '\n'
-                    f.write(string_results)
-                    f.flush()
-        
+            result = self._train(self.train_dataset, self.test_dataset, num_epochs, model_save_path, stats_save_path)
+            headers = '\t'.join( [ str( header ) for header, _ in result[ 1 ].items() ]) + '\n'         
+            string_results = '\t'.join( [ str( score ) for _, score in result[ 1 ].items() ]) + '\n'
+            
+            f.write(headers)
+            f.write(string_results)
+            f.flush()
     
 if __name__ == "__main__":
 
 
     vocab = Vocab.from_files( [config.dataset_path, config.test_dataset_path] )
     
-    train_dataset = ReviewDataset('./datasets/train_data.tsv', preprocessed= True, vocab= vocab)
-    test_dataset = ReviewDataset('./datasets/test_data.tsv', preprocessed= True, vocab= vocab)
+    train_dataset = ReviewDataset(config.dataset_path, preprocessed= False, vocab= vocab)
+    test_dataset = ReviewDataset(config.test_dataset_path, preprocessed= False, vocab= vocab)
     
-    model = AttentionAspectionExtraction( vocab, embedding_path= config.word_embedding_path, pos_dim= len( config.POS_MAP ), num_heads= 8, use_crf= True )
+    model = AttentionAspectionExtraction( vocab, embedding_path= config.word_embedding_path, pos_dim= len( config.POS_MAP ), use_crf= config.use_crf )
 
-    weight=tensor( [ 0.2, 0.4, 0.4 ] ).to( config.device )
-    loss_function = nn.NLLLoss(weight= weight)
-    optimizer = torch.optim.SGD(model.parameters(), 0.001, momentum= 0.01)
+    loss_function = nn.NLLLoss()
+    optimizer = torch.optim.SGD(model.parameters(), lr= config.lr, momentum= config.momentum)
 
-    trainer = Trainer(model, train_dataset, test_dataset, loss_function, optimizer )
+    trainer = Trainer(model, train_dataset, test_dataset, optimizer, loss_function= loss_function )
     trainer.run(config.num_epochs, config.model_save_path )
