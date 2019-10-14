@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 import config
 from data_utils import ReviewDataset, Vocab, Review, subfinder, generate_bio_tags, create_embedding_matrix, evaluation_metrics
-from model import AttentionAspectionExtraction, BaseLineLSTM, MultiHeadAttentionAspectionExtraction
+from model import AttentionAspectionExtraction, BaseLineLSTM, MultiHeadAttentionAspectionExtraction, GlobalAttentionAspectExtraction
 
 class Trainer:
     def __init__(self, model, train_dataset, test_dataset, optimizer, loss_function= None):
@@ -142,7 +142,7 @@ if __name__ == "__main__":
     train_dataset = ReviewDataset(config.dataset_path, preprocessed= False, vocab= vocab)
     test_dataset = ReviewDataset(config.test_dataset_path, preprocessed= False, vocab= vocab)
     
-    model = AttentionAspectionExtraction( vocab, embedding_path= config.word_embedding_path, pos_dim= len( config.POS_MAP ), use_crf= config.use_crf )
+    model = GlobalAttentionAspectExtraction( vocab, embedding_path= config.word_embedding_path, pos_dim= len( config.POS_MAP ), use_crf= config.use_crf )
 
     loss_function = nn.NLLLoss()
     optimizer = torch.optim.SGD(model.parameters(), lr= config.lr, momentum= config.momentum)

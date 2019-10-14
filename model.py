@@ -102,8 +102,6 @@ class AttentionAspectionExtraction(nn.Module):
 
         self.weight_init()
 
-        
-
     def weight_init(self):
         for p in self.parameters():
             if len(p.shape) > 1:
@@ -114,6 +112,7 @@ class AttentionAspectionExtraction(nn.Module):
         self.embedding.weight = nn.Parameter(create_embedding_matrix(self.vocab, self.embedding_dim, 
                                                         dataset_path= config.word_embedding_path,  
                                                         save_weight_path= config.embedding_save_path ))
+
     def forward( self, inputs, mask= None, get_predictions= False ):
         
         if mask is None:
@@ -136,6 +135,123 @@ class AttentionAspectionExtraction(nn.Module):
         
 
         s_i = torch.bmm( alpha, review_h )
+        
+        x = self.w_r( s_i ).contiguous() 
+        
+        
+        if self.use_crf:
+            targets = inputs[ 'targets' ]
+            
+            mask = mask.squeeze_().type( torch.uint8 )
+            loss = self.crf( x, targets, mask = mask )
+            if get_predictions:
+                temp = self.crf.decode( x )
+                return - loss, torch.tensor( np.array( temp ) , dtype= torch.long, device= config.device)
+            
+            return - loss 
+
+        x = nn.functional.log_softmax(x, dim= 2)
+        return x * mask
+
+class GlobalAttentionAspectExtraction(nn.Module):
+    
+    def __init__(self, vocab, embedding_dim= config.word_embeding_dim, hidden_dim= config.hidden_dim, output_dim= len( config.bio_dict ), pos_dim= -1, use_crf= False, **kwargs):
+        super(GlobalAttentionAspectExtraction, self).__init__()
+    
+        self.embedding_dim = embedding_dim 
+        self.hidden_dim = hidden_dim
+        self.embedding = nn.Embedding( len( vocab ), self.embedding_dim )
+        self.output_dim = output_dim
+        self.pos_dim = pos_dim        
+        self.device = kwargs.get( 'device', config.device )
+        self.vocab = vocab
+        print('pos_dim ',pos_dim)
+        self.rnn_model = kwargs.get( 'rnn_model', config.rnn_model )
+    
+        if self.rnn_model == 'gru':   
+            self.encoder = nn.GRU(
+                                    self.embedding_dim + self.pos_dim if self.pos_dim != -1 else self.embedding_dim,
+                                    self.hidden_dim,
+                                    bidirectional= kwargs.get('bidirectional', config.bidirectiional),
+                                    num_layers = kwargs.get('num_rnn_layers', config.num_layers),
+                                    dropout = kwargs.get('dropout', config.dropout)
+                                )
+
+        elif self.rnn_model == 'lstm':
+            self.encoder = nn.LSTM(
+                                    self.embedding_dim + self.pos_dim if self.pos_dim != -1 else self.embedding_dim,
+                                    self.hidden_dim,
+                                    bidirectional= kwargs.get('bidirectional', config.bidirectiional),
+                                    num_layers = kwargs.get('num_rnn_layers', config.num_layers),
+                                    dropout = kwargs.get('dropout', config.dropout)
+                                )
+        
+        self.weight_m = nn.Parameter( torch.Tensor( self.hidden_dim * 2, self.hidden_dim * 2 ) )
+        self.bias_m = nn.Parameter( torch.Tensor( 1 ) )
+        
+        self.w_r = nn.Linear( self.hidden_dim * 2, output_dim )
+
+        self.use_crf = use_crf
+        if self.use_crf:
+            self.crf = CRF( self.output_dim, batch_first= True )
+
+        self.weight_init()
+    
+    def weight_init(self):
+        for p in self.parameters():
+            if len(p.shape) > 1:
+                torch.nn.init.xavier_uniform_(p)
+            else:
+                stdv = 1. / (p.shape[0] ** 0.5)
+                torch.nn.init.uniform_(p, a=-stdv, b=stdv)
+        self.embedding.weight = nn.Parameter(create_embedding_matrix(self.vocab, self.embedding_dim, 
+                                                        dataset_path= config.word_embedding_path,  
+                                                        save_weight_path= config.embedding_save_path ))
+    
+    def forward( self, inputs, mask= None, get_predictions= False ):
+        
+        if mask is None:
+            mask = torch.ones((inputs['review'].shape[0], inputs['review'].shape[1], 1), dtype= torch.uint8, device=self.device) # shape ( batch_size, sequence_length, 1 )
+        
+        review = inputs[ 'review' ]
+        review_lengths = inputs['original_review_length']
+
+        review = self.embedding( review )
+        if self.pos_dim != -1:
+            review = torch.cat([review, inputs['pos_tags']], dim= 2)
+        review = pack_padded_sequence(review, review_lengths, batch_first= True, enforce_sorted= False)
+
+        if self.rnn_model == 'lstm':
+            review_h, ( global_context, _) = self.encoder( review )
+        elif self.rnn_model == 'gru':
+            review_h, global_context = self.encoder( review )
+
+        review_h, _ = pad_packed_sequence( review_h, batch_first= True, padding_value= 0 ) # shape: ( batch_size, seq_len, hidden_dim )
+        
+        print(review_h.shape, global_context.shape)
+        
+        ( batch_size, seq_len, hidden_dim ) = review_h.shape
+        global_context= global_context.view(config.num_layers, 2 if config.bidirectiional else 1, batch_size, hidden_dim // config.num_layers) # (num_layers, num_directions, batch, hidden_size)
+        global_context = global_context.transpose(0,2) # (batch, num_directions, num_layers, hidden_size)
+        global_context = global_context[:,:,-1,:].reshape(batch_size,-1,1) # (batch, num_directions * hidden_size, 1)
+
+        print(review_h.shape, global_context.shape)
+        input()
+
+        alpha = torch.bmm( torch.matmul( review_h, self.weight_m ), global_context  ) + self.bias_m
+        print( review_h.shape, global_context.shape, alpha.shape )
+        input()
+
+        alpha = torch.nn.functional.softmax( alpha, dim= 1 ) # ( batch_size, attention_scores, 1 )
+        
+        print(review_h.shape, global_context.shape, alpha.shape)
+        input()
+
+        alpha = alpha.expand_as( review_h ) # ( batch_size, attention_scores, 1 )
+        print(review_h.shape, global_context.shape, alpha.shape)
+        input()
+
+        s_i = alpha * review_h
         
         x = self.w_r( s_i ).contiguous() 
         
