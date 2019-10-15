@@ -37,7 +37,7 @@ bidirectiional = True
 dropout = 0.3 if num_layers > 1 else 0
 lr= 0.001
 momentum = 0.01
-use_crf = False
+use_crf = True
 
 # will be updated when the dataset is processed
 max_review_length = 85

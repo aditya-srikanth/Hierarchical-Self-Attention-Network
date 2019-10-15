@@ -1,6 +1,7 @@
 import config
 import re
 import spacy
+print('spacy using GPU: ',spacy.prefer_gpu())
 from spacy.tokenizer import Tokenizer
 from spacy.pipeline import Tagger
 from spacy.lang.en import English
