@@ -4,10 +4,11 @@ PAD = 3
 # file paths 
 dataset_path = './datasets/Laptops_Train.xml'
 test_dataset_path = './datasets/Laptops_Test.xml'
-# word_embedding_path = './glove/domain_embedding/laptop_emb.vec'
-word_embedding_path = './glove/glove.6B.100d.txt'
-embedding_save_path = './glove/embedding_matrix.npz'
+word_embedding_path = './glove/domain_embedding/laptop_emb.vec'
+# word_embedding_path = './glove/glove.6B.100d.txt'
+# embedding_save_path = './glove/embedding_matrix.npz'
 # embedding_save_path = './glove/laptop_matrix.npy'
+embedding_save_path = './glove/concat_glove_laptop.npz'
 
 model_save_path = './model_weights/Laptop_Attention_CRF_glove_domain_concat_embedding.pt'
 save_stats_path = './results/Laptop_Attention_CRF_glove_domain_concat_embedding.tsv'
@@ -28,15 +29,16 @@ rnn_model = 'lstm'
 
 
 # hyper parameters.
-num_epochs = 50
-batch_size = 16
-word_embeding_dim = 100
+num_epochs = 100
+batch_size = 32
+word_embeding_dim = 200
 hidden_dim = 50
 num_layers = 2
 bidirectiional = True
-dropout = 0.3 if num_layers > 1 else 0
+dropout = 0.5 if num_layers > 1 else 0
 lr= 0.001
 momentum = 0.01
+weight_decay= 1e-4
 use_crf = True
 
 # will be updated when the dataset is processed

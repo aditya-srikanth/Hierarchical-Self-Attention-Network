@@ -3,7 +3,7 @@ import torch
 from torch import nn
 from torch.utils.data import Dataset, DataLoader
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
-import torch.functional as F 
+import torch.nn.functional as F 
 import numpy as np 
 import matplotlib.pyplot as plt
 from pprint import pprint
@@ -112,6 +112,7 @@ class AttentionAspectionExtraction(nn.Module):
         self.embedding.weight = nn.Parameter(create_embedding_matrix(self.vocab, self.embedding_dim, 
                                                         dataset_path= config.word_embedding_path,  
                                                         save_weight_path= config.embedding_save_path ))
+        self.embedding.weight.requires_grad = False
 
     def forward( self, inputs, mask= None, get_predictions= False ):
         
@@ -288,7 +289,9 @@ class FusionAttentionAspectExtraction(nn.Module):
                                     num_layers = kwargs.get('num_rnn_layers', config.num_layers),
                                     dropout = kwargs.get('dropout', config.dropout)
                                 )
-        self.w_f = nn.Linear( self.hidden_dim * 4, self.hidden_dim * 2 )
+
+        self.w_a = nn.Linear( self.hidden_dim * 2, 1 ) # attention scores computation
+        self.w_f = nn.Linear( self.hidden_dim * 4, self.hidden_dim * 2, bias= False )
         
         self.weight_m = nn.Parameter( torch.Tensor( self.hidden_dim * 2, self.hidden_dim * 2 ) )
         self.bias_m = nn.Parameter( torch.Tensor( 1 ) )
@@ -311,12 +314,15 @@ class FusionAttentionAspectExtraction(nn.Module):
         self.embedding.weight = nn.Parameter(create_embedding_matrix(self.vocab, self.embedding_dim, 
                                                         dataset_path= config.word_embedding_path,  
                                                         save_weight_path= config.embedding_save_path ))
-    
+        self.embedding.weight.requires_grad = False
+
     def forward( self, inputs, mask= None, get_predictions= False ):
         
         if mask is None:
             mask = torch.ones((inputs['review'].shape[0], inputs['review'].shape[1], 1), dtype= torch.uint8, device=self.device) # shape ( batch_size, sequence_length, 1 )
         
+        softmax_mask = (mask - 1) * 1e10
+
         review = inputs[ 'review' ]
         review_lengths = inputs['original_review_length']
 
@@ -332,17 +338,17 @@ class FusionAttentionAspectExtraction(nn.Module):
 
         review_h, _ = pad_packed_sequence( review_h, batch_first= True, padding_value= 0 ) # shape: ( batch_size, seq_len, hidden_dim )
         
+        global_context_scores = self.w_a( review_h ) + softmax_mask
+        global_context_scores = F.softmax(global_context_scores, dim= 1).transpose(1,2)
+        global_context = torch.bmm(global_context_scores, review_h)
+        global_context = global_context.expand_as(review_h)
         
-        ( batch_size, seq_len, hidden_dim ) = review_h.shape
-        global_context= global_context.view(config.num_layers, 2 if config.bidirectiional else 1, batch_size, hidden_dim // config.num_layers) # (num_layers, num_directions, batch, hidden_size)
-        global_context = global_context.transpose(0,2) # (batch, num_directions, num_layers, hidden_size)
-        global_context = global_context[:,:,-1,:].reshape(batch_size,-1).unsqueeze_(1) # (batch, 1, num_layers * num_directions * hidden_size)
-        global_context = global_context.expand_as(review_h) # ( batch_size, seq_len, hidden_dim )
-
         review_h = torch.cat( [ review_h, global_context ], dim= 2 )
+        
         review_h = self.w_f( review_h )
         
         alpha = torch.bmm( torch.matmul( review_h, self.weight_m ), torch.transpose(review_h, 1, 2)  ) + self.bias_m
+        alpha = alpha + softmax_mask.transpose(1,2)
         alpha = torch.nn.functional.softmax( alpha , dim= 2 ) # ( batch_size, sequence_length, attention_scores )
 
         s_i = torch.bmm( alpha, review_h )

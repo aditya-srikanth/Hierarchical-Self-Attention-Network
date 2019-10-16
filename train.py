@@ -29,6 +29,15 @@ class Trainer:
         self.device = torch.device( config.device if torch.cuda.is_available() else 'cpu')
         self.model.to( self.device )
         print('using device: ',self.device)
+    def _print_args(self):
+        n_trainable_params, n_nontrainable_params = 0, 0
+        for p in self.model.parameters():
+            n_params = torch.prod(torch.tensor(p.shape))
+            if p.requires_grad:
+                n_trainable_params += n_params
+            else:
+                n_nontrainable_params += n_params
+        print('n_trainable_params: {0}, n_nontrainable_params: {1}'.format(n_trainable_params, n_nontrainable_params))
 
     def _train(self, train_dataset, test_dataset, num_epochs, model_save_path= config.model_save_path, stats_save_path= config.save_stats_path ):
 
@@ -43,7 +52,7 @@ class Trainer:
             avg_loss = 0.0
             self.model.train()
 
-            print('*****************************************************************************************\n')
+            print('\n*****************************************************************************************')
             for i,batch in enumerate( tqdm(train_dataloader) ):
 
                 self.optimizer.zero_grad()
@@ -125,7 +134,9 @@ class Trainer:
     def run(self, num_epochs, model_save_path, stats_save_path = config.save_stats_path ):
         
         with open( stats_save_path,'w' ) as f:
-
+            
+            self._print_args()
+            
             result = self._train(self.train_dataset, self.test_dataset, num_epochs, model_save_path, stats_save_path)
             headers = '\t'.join( [ str( header ) for header, _ in result[ 1 ].items() ]) + '\n'         
             string_results = '\t'.join( [ str( score ) for _, score in result[ 1 ].items() ]) + '\n'
