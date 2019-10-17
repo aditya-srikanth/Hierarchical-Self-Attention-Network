@@ -11,7 +11,8 @@ from tqdm import tqdm
 
 import config
 from data_utils import ReviewDataset, Vocab, Review, subfinder, generate_bio_tags, create_embedding_matrix, evaluation_metrics
-from model import AttentionAspectionExtraction, BaseLineLSTM, MultiHeadAttentionAspectionExtraction, GlobalAttentionAspectExtraction, FusionAttentionAspectExtraction
+from model import AttentionAspectionExtraction, BaseLineLSTM, GlobalAttentionAspectExtraction,\
+                  FusionAttentionAspectExtraction, FusionAttentionAspectExtractionV2
 
 class Trainer:
     def __init__(self, model, train_dataset, test_dataset, optimizer, loss_function= None):
@@ -28,6 +29,7 @@ class Trainer:
         
         self.device = torch.device( config.device if torch.cuda.is_available() else 'cpu')
         self.model.to( self.device )
+        self.optimizer = self.optimizer(self.model.parameters())
         print('using device: ',self.device)
     def _print_args(self):
         n_trainable_params, n_nontrainable_params = 0, 0
@@ -79,7 +81,7 @@ class Trainer:
                     loss = self.loss_function( outputs, targets )
 
                 loss.backward()
-                optimizer.step()
+                self.optimizer.step()
 
             print('loss ',loss.item(), 'trainstep ', epoch)
             candidate_best, res = self.evaluate(test_dataloader, current_best= current_best,path_save_best_model= model_save_path )            
@@ -153,11 +155,10 @@ if __name__ == "__main__":
     train_dataset = ReviewDataset(config.dataset_path, preprocessed= False, vocab= vocab)
     test_dataset = ReviewDataset(config.test_dataset_path, preprocessed= False, vocab= vocab)
     
-    model = FusionAttentionAspectExtraction( vocab, embedding_path= config.word_embedding_path, use_crf= config.use_crf )
+    model = FusionAttentionAspectExtractionV2( vocab, embedding_path= config.word_embedding_path, use_crf= config.use_crf )
 
     loss_function = nn.NLLLoss()
-    # optimizer = torch.optim.Adam(model.parameters())
-    optimizer = torch.optim.SGD(model.parameters(), lr= config.lr, momentum= config.momentum)
+    optimizer = torch.optim.Adagrad
 
     trainer = Trainer(model, train_dataset, test_dataset, optimizer, loss_function= loss_function )
     trainer.run(config.num_epochs, config.model_save_path )
