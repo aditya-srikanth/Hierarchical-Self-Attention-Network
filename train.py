@@ -29,7 +29,7 @@ class Trainer:
         
         self.device = torch.device( config.device if torch.cuda.is_available() else 'cpu')
         self.model.to( self.device )
-        self.optimizer = self.optimizer(self.model.parameters())
+        
         print('using device: ',self.device)
     def _print_args(self):
         n_trainable_params, n_nontrainable_params = 0, 0
@@ -89,6 +89,7 @@ class Trainer:
             if current_best < candidate_best:
                 current_best = candidate_best
                 best_res = res
+            print('current best ', current_best)
             gc.collect()
         print('*****************************************************************************************\n')
         return current_best, best_res
@@ -130,7 +131,7 @@ class Trainer:
                     if current_best == None or current_best < f_score:
                         print('saving model with f score: ', f_score)
                         torch.save( self.model.state_dict(), path_save_best_model )
-                
+                            
             return f_score, res
 
     def run(self, num_epochs, model_save_path, stats_save_path = config.save_stats_path ):
@@ -155,10 +156,10 @@ if __name__ == "__main__":
     train_dataset = ReviewDataset(config.dataset_path, preprocessed= False, vocab= vocab)
     test_dataset = ReviewDataset(config.test_dataset_path, preprocessed= False, vocab= vocab)
     
-    model = FusionAttentionAspectExtractionV2( vocab, embedding_path= config.word_embedding_path, use_crf= config.use_crf )
+    model = FusionAttentionAspectExtraction( vocab, embedding_path= config.word_embedding_path, use_crf= config.use_crf ).to(config.device)
 
     loss_function = nn.NLLLoss()
-    optimizer = torch.optim.Adagrad
+    optimizer = torch.optim.Adagrad(model.parameters())
 
     trainer = Trainer(model, train_dataset, test_dataset, optimizer, loss_function= loss_function )
     trainer.run(config.num_epochs, config.model_save_path )
