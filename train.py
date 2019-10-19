@@ -43,7 +43,7 @@ class Trainer:
 
     def _train(self, train_dataset, test_dataset, num_epochs, model_save_path= config.model_save_path, stats_save_path= config.save_stats_path ):
 
-        train_dataloader = DataLoader( train_dataset, batch_size= config.batch_size, shuffle= False, num_workers= config.num_dataset_workers)
+        train_dataloader = DataLoader( train_dataset, batch_size= config.batch_size, shuffle= True, num_workers= config.num_dataset_workers)
         test_dataloader = DataLoader( test_dataset, batch_size= len( test_dataset ), shuffle= False, num_workers= config.num_dataset_workers)
 
         current_best = -1
@@ -156,10 +156,10 @@ if __name__ == "__main__":
     train_dataset = ReviewDataset(config.dataset_path, preprocessed= False, vocab= vocab)
     test_dataset = ReviewDataset(config.test_dataset_path, preprocessed= False, vocab= vocab)
     
-    model = FusionAttentionAspectExtraction( vocab, embedding_path= config.word_embedding_path, use_crf= config.use_crf ).to(config.device)
+    model = FusionAttentionAspectExtractionV2( vocab, embedding_path= config.word_embedding_path, use_crf= config.use_crf ).to(config.device)
 
     loss_function = nn.NLLLoss()
-    optimizer = torch.optim.Adagrad(model.parameters())
+    optimizer = torch.optim.Adadelta(model.parameters())
 
     trainer = Trainer(model, train_dataset, test_dataset, optimizer, loss_function= loss_function )
     trainer.run(config.num_epochs, config.model_save_path )

@@ -36,8 +36,8 @@ hidden_dim = 50
 num_layers = 2
 bidirectiional = True
 dropout = 0.3 if num_layers > 1 else 0
-lr= 0.001
-momentum = 0.01
+lr= 0.1
+momentum = 0.9
 weight_decay= 1e-5
 use_crf = True
 

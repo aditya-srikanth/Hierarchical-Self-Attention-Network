@@ -326,13 +326,13 @@ class FusionAttentionAspectExtraction(nn.Module):
                                     dropout = kwargs.get('dropout', config.dropout)
                                 )
 
-        self.w_a = nn.Linear( self.hidden_dim * 2, 1 ) # attention scores computation
+        self.w_a = nn.Linear( self.hidden_dim * 2, 1, bias= False ) # attention scores computation
         self.w_f = nn.Linear( self.hidden_dim * 4, self.hidden_dim * 2, bias= False )
         
         self.weight_m = nn.Parameter( torch.Tensor( self.hidden_dim * 2, self.hidden_dim * 2 ) )
         self.bias_m = nn.Parameter( torch.Tensor( 1 ) )
         
-        self.w_r = nn.Linear( self.hidden_dim * 2, output_dim )
+        self.w_r = nn.Linear( self.hidden_dim * 2, output_dim, bias= False )
 
         self.use_crf = use_crf
         if self.use_crf:
@@ -342,11 +342,12 @@ class FusionAttentionAspectExtraction(nn.Module):
     
     def weight_init(self):
         for p in self.parameters():
-            if len(p.shape) > 1:
-                torch.nn.init.xavier_uniform_(p)
-            else:
-                stdv = 1. / (p.shape[0] ** 0.5)
-                torch.nn.init.uniform_(p, a=-stdv, b=stdv)
+            # if len(p.shape) > 1:
+            #     torch.nn.init.xavier_uniform_(p)
+            # else:
+            #     stdv = 1. / (p.shape[0] ** 0.5)
+            #     torch.nn.init.uniform_(p, a=-stdv, b=stdv)
+            torch.nn.init.uniform_(p)
         self.embedding.weight = nn.Parameter(create_embedding_matrix(self.vocab, self.embedding_dim, 
                                                         dataset_path= config.word_embedding_path,  
                                                         save_weight_path= config.embedding_save_path ))
@@ -439,15 +440,15 @@ class FusionAttentionAspectExtractionV2(nn.Module):
                                     dropout = kwargs.get('dropout', config.dropout)
                                 )
 
-        self.w_a = nn.Linear( self.hidden_dim * 2, self.hidden_dim * 2, bias= False ) # attention scores computation
-        # self.w_f = nn.Linear( self.hidden_dim * 4, self.hidden_dim * 2, bias= False )
+        self.w_a = nn.Linear( self.hidden_dim * 2, self.hidden_dim * 2, bias= True ) # attention scores computation
+        self.w_f = nn.Linear( self.hidden_dim * 4, self.hidden_dim * 2, bias= False )
         
-        # self.weight_m = nn.Parameter( torch.Tensor( self.hidden_dim * 2, self.hidden_dim * 2 ) )
-        self.weight_m = nn.Parameter( torch.Tensor( self.hidden_dim * 4, self.hidden_dim * 4 ) )
+        self.weight_m = nn.Parameter( torch.Tensor( self.hidden_dim * 2, self.hidden_dim * 2 ) )
+        # self.weight_m = nn.Parameter( torch.Tensor( self.hidden_dim * 4, self.hidden_dim * 4 ) )
         self.bias_m = nn.Parameter( torch.Tensor( 1 ) )
         
-        # self.w_r = nn.Linear( self.hidden_dim * 2, output_dim, bias= False )
-        self.w_r = nn.Linear( self.hidden_dim * 4, output_dim, bias= False )
+        self.w_r = nn.Linear( self.hidden_dim * 2, output_dim, bias= False )
+        # self.w_r = nn.Linear( self.hidden_dim * 4, output_dim, bias= True )
 
         self.use_crf = use_crf
         if self.use_crf:
@@ -494,7 +495,7 @@ class FusionAttentionAspectExtractionV2(nn.Module):
         final_hidden_state = final_hidden_state.transpose(0,2) # (batch, num_directions, num_layers, hidden_size)
         final_hidden_state = final_hidden_state[:,:,-1,:].reshape(batch_size,-1,1) # (batch, num_directions * hidden_size, 1)
 
-        global_context_scores = torch.bmm( self.w_a( review_h ), final_hidden_state )
+        # global_context_scores = torch.bmm( self.w_a( review_h ), final_hidden_state )
         global_context_scores = torch.bmm( self.w_a( review_h ), final_hidden_state ) + softmax_mask
         global_context_scores = F.softmax(global_context_scores, dim= 1).transpose(1,2)
         global_context = torch.bmm(global_context_scores, review_h)
@@ -502,7 +503,7 @@ class FusionAttentionAspectExtractionV2(nn.Module):
         
         review_h = torch.cat( [ review_h, global_context ], dim= 2 )
         
-        # review_h = self.w_f( review_h )
+        review_h = self.w_f( review_h )
         
         alpha = torch.bmm( torch.matmul( review_h, self.weight_m ), torch.transpose(review_h, 1, 2)  ) + self.bias_m
         alpha = alpha + softmax_mask.transpose(1,2)
