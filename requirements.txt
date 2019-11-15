@@ -1,5 +1,3 @@
 numpy
-sklearn
-matplotlib
 spacy
 pytorch-crf
