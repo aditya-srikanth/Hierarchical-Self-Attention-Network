@@ -30,7 +30,11 @@ class Trainer:
         self.test_dataset = ReviewDataset(config.test_dataset_path, preprocessed= False, vocab= vocab)
     
         self.model = model( vocab, embedding_path= config.word_embedding_path, use_crf= config.use_crf ).to(config.device)
-        self.optimizer = optimizer(self.model.parameters())
+    
+        if isinstance(optimizer, torch.optim.SGD):
+            self.optimizer = optimizer(self.model.parameters(), config.lr, config.momentum )
+        else:       # use default params 
+            self.optimizer = optimizer(self.model.parameters())
 
         if not self.use_crf and loss_function is None:
             raise Exception(' Loss function must be specified when crf is not being used ')

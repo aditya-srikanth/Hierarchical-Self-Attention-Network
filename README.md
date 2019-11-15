@@ -14,4 +14,12 @@ Currently the following models are implemented:
 numpy, pytorch, spacy, pytorch-crf
 
 ### Installing
-clone the repository
+1. clone the repository
+2. download glove embeddings and paste them in embeddings/glove
+3. paste domain embeddings in embedding/domain_embedding
+4. run concat_embeddings.py to generate glove-domain concactenated embeddings
+
+
+## Running the tests
+
+To change the model configuration, dataset and hyperparams,  
