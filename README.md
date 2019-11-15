@@ -22,4 +22,5 @@ numpy, pytorch, spacy, pytorch-crf
 
 ## Running the tests
 
-To change the model configuration, dataset and hyperparams,  
+* To change the model configuration, dataset and, hyperparams, see config.py
+* To train the model, python train.py
