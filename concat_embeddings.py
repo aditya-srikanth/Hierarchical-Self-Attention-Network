@@ -1,17 +1,20 @@
 import numpy as np 
 import json 
 
+from data_utils import Vocab
+
 vocab = {}
 vectors = []
 index = 0
 
-with open('./glove/mapping.json', 'r') as f:
-    vocab = json.load(f)
-
+train_dataset = './datasets/Restaurants_Train.xml'
+test_dataset = './datasets/Restaurants_Test.xml'
+mapping_file = './embeddings/restaurant_mapping.json'
+vocab = Vocab.from_files( [train_dataset, test_dataset], store= mapping_file ).get_vocab()
 
 embedding = np.zeros((len(vocab), 200))
 
-with open('glove/glove.6B.100d.txt', 'r', encoding= 'utf-8' ) as f:
+with open('embeddings/glove/glove.6B.100d.txt', 'r', encoding= 'utf-8' ) as f:
     for line in f:
         values = line.split()
         word = values[0]
@@ -21,7 +24,7 @@ with open('glove/glove.6B.100d.txt', 'r', encoding= 'utf-8' ) as f:
 
 print('glove done')
 
-with open('glove/domain_embedding/restaurant_emb.vec','r', encoding='utf-8') as f:
+with open('embeddings/domain_embedding/restaurant_emb.vec','r', encoding='utf-8') as f:
     for line in f:
         values = line.split()
         word = values[0]
@@ -29,12 +32,18 @@ with open('glove/domain_embedding/restaurant_emb.vec','r', encoding='utf-8') as 
         if word in vocab:
             embedding[vocab[ word ], 100 : ] = vector
 
-with open('glove/concat_glove_restaurant.npz', 'wb') as f:
+with open('embeddings/concat_glove_domain_restaurant.npy', 'wb') as f:
     np.save(f, embedding)
 
 print('saved restaurant glove embedding')
 
-with open('glove/glove.6B.100d.txt', 'r', encoding='utf-8' ) as f:
+train_dataset = './datasets/Laptops_Train.xml'
+test_dataset = './datasets/Laptops_Test.xml'
+mapping_file = './embeddings/laptop_mapping.json'
+vocab = Vocab.from_files( [train_dataset, test_dataset], store= mapping_file ).get_vocab()
+
+embedding = np.zeros((len(vocab), 200))
+with open('embeddings/glove/glove.6B.100d.txt', 'r', encoding='utf-8' ) as f:
     for line in f:
         values = line.split()
         word = values[0]
@@ -44,7 +53,7 @@ with open('glove/glove.6B.100d.txt', 'r', encoding='utf-8' ) as f:
 
 print('glove done')
 
-with open('glove/domain_embedding/laptop_emb.vec','r', encoding= 'utf-8') as f:
+with open('embeddings/domain_embedding/laptop_emb.vec','r', encoding= 'utf-8') as f:
     for line in f:
         values = line.split()
         word = values[0]
@@ -52,7 +61,7 @@ with open('glove/domain_embedding/laptop_emb.vec','r', encoding= 'utf-8') as f:
         if word in vocab:
             embedding[vocab[ word ]][ 100 : ] = vector
 
-with open('glove/concat_glove_laptop.npz', 'wb') as f:
+with open('embeddings/concat_glove_domain_laptop.npy', 'wb') as f:
     np.save(f, embedding)
 
 print('saved laptop glove embedding')

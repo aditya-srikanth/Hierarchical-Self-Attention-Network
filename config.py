@@ -1,18 +1,6 @@
 sep = '\t'
 PAD = 3
 
-# file paths 
-dataset_path = './datasets/Laptops_Train.xml'
-test_dataset_path = './datasets/Laptops_Test.xml'
-word_embedding_path = './glove/domain_embedding/laptop_emb.vec'
-# word_embedding_path = './glove/glove.6B.100d.txt'
-# embedding_save_path = './glove/embedding_matrix.npz'
-# embedding_save_path = './glove/laptop_matrix.npy'
-embedding_save_path = './glove/concat_glove_laptop.npz'
-
-model_save_path = './model_weights/Laptop_Fusion_Attention_CRF_v2_10_fold_glove_domain_concat_embedding.pt'
-save_stats_path = './results/Laptop_Fusion_Attention_CRF_v2_10_fold_glove_domain_concat_embedding.tsv'
-
 bio_dict = { 'B': 2, 'I':1, 'O':0 }
 POS_MAP =   {   '$': 0, '\'\'': 1, ',': 2, '-LRB-': 3, '-RRB-': 4, '.': 5, ':': 6, 'ADD': 7, 'AFX': 8, 'CC': 9, 
                 'CD': 10, 'DT': 11, 'EX': 12, 'FW': 13, 'HYPH': 14, 'IN': 15, 'JJ': 16, 'JJR': 17, 
@@ -23,23 +11,76 @@ POS_MAP =   {   '$': 0, '\'\'': 1, ',': 2, '-LRB-': 3, '-RRB-': 4, '.': 5, ':': 
             }
 
 device = 'cuda'
-# device = 'cpu'
 num_dataset_workers = 0
 rnn_model = 'lstm'
 
-
 # hyper parameters.
-num_epochs = 100
+num_epochs = 50
 batch_size = 64
-word_embeding_dim = 200
 hidden_dim = 50
 num_layers = 2
 bidirectiional = True
-dropout = 0.3 if num_layers > 1 else 0
-lr= 0.1
-momentum = 0.9
-weight_decay= 1e-5
+dropout = 0.5
 use_crf = True
+use_pos = False
+optimizer = 'adam' # adadelta, adagrad, adam, adamax, asgd, rmsprop, sgd
+model = 'decnn' # lstm, attention_lstm, global_attention_lstm, fusion, fusionv2, decnn
+dataset = 'rest' # rest, laptop
+embedding = 'concat_rest' # concat_rest, concat_laptop, rest, laptop, glove_rest, glove_laptop
+
+num_folds= 1
 
 # will be updated when the dataset is processed
 max_review_length = 85
+
+if dataset == 'laptop':
+    mapping_file = './embeddings/laptop_mapping.json'
+    dataset_path = './datasets/Laptops_Train.xml'
+    test_dataset_path = './datasets/Laptops_Test.xml'
+    if num_folds > 1:
+        model_save_path = './model_weights/' + dataset + '_k_fold_' + model + '_' + embedding +'.pt'
+        save_stats_path = './results/' + dataset + '_k_fold_' + model + '_' + embedding +'.tsv'
+    else:
+        model_save_path = './model_weights/' + dataset + '_' + model + '_' + embedding +'.pt'
+        save_stats_path = './results/' + dataset + '_' + model + '_' + embedding +'.tsv'
+ 
+elif dataset == 'rest':
+    mapping_file = './embeddings/restaurant_mapping.json'
+    dataset_path = './datasets/Restaurants_Train.xml'
+    test_dataset_path = './datasets/Restaurants_Test.xml'
+    if num_folds > 1:
+        model_save_path = './model_weights/' + dataset + '_k_fold_' + model + '_' + embedding +'.pt'
+        save_stats_path = './results/' + dataset + '_k_fold_' + model + '_' + embedding +'.tsv'
+    else:
+        model_save_path = './model_weights/' + dataset + '_' + model + '_' + embedding +'.pt'
+        save_stats_path = './results/' + dataset + '_' + model + '_' + embedding +'.tsv'
+
+if embedding == 'concat_laptop':
+    word_embeding_dim = 200
+    word_embedding_path = './embeddings/domain_embedding/laptop_emb.vec'
+    embedding_save_path = './embeddings/concat_glove_domain_laptop.npy' # concatenated embedding
+
+elif embedding == 'concat_rest':
+    word_embeding_dim = 200
+    word_embedding_path = './embeddings/domain_embedding/restaurant_emb.vec'
+    embedding_save_path = './embeddings/concat_glove_domain_restaurant.npy'
+
+elif embedding == 'laptop':
+    word_embeding_dim = 100
+    word_embedding_path = './embeddings/domain_embedding/laptop_emb.vec'
+    embedding_save_path = './embdeddings/laptop_matrix.npy' 
+
+elif embedding == 'rest':
+    word_embeding_dim = 100
+    word_embedding_path = './embeddings/domain_embedding/restaurant_emb.vec'
+    embedding_save_path = './embeddings/restaurant_matrix.npy'
+
+elif embedding == 'glove_rest':
+    word_embeding_dim = 100
+    word_embedding_path = './embeddings/glove/glove.6B.100d.txt'
+    embedding_save_path = './embeddings/glove/rest_glove_matrix.npy'
+
+elif embedding == 'glove_laptop':
+    word_embeding_dim = 100
+    word_embedding_path = './embeddings/glove/glove.6B.100d.txt'
+    embedding_save_path = './embeddings/glove/laptop_glove_matrix.npy'

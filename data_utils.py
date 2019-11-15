@@ -1,12 +1,7 @@
 import config
 import re
 import spacy
-# print('spacy using GPU: ',spacy.prefer_gpu())
-from spacy.tokenizer import Tokenizer
-from spacy.pipeline import Tagger
-from spacy.lang.en import English
-from pprint import pprint
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset
 from torch import tensor
 from torch import int32, float32
 import numpy as np
@@ -84,7 +79,7 @@ def create_embedding_matrix( vocab, embedding_dim, device= config.device, datase
         if os.path.isfile(save_weight_path):
             embedding_matrix = np.load( save_weight_path )
             print('retrieved embedding weights from existing file')
-            return tensor( embedding_matrix, requires_grad= True, dtype= float32).to( device )
+            return tensor( embedding_matrix, dtype= float32).to( device )
         
         if isinstance( dataset_path, str ):
         
@@ -130,7 +125,7 @@ def create_embedding_matrix( vocab, embedding_dim, device= config.device, datase
         print('loaded pretrained matrix, ', ' num mapped words: ', num_mapped_words)
         if save_weight_path != None:
             np.save(save_weight_path, embedding_matrix)
-        return tensor( embedding_matrix, requires_grad= False, dtype= float32).to(device)
+        return tensor( embedding_matrix, dtype= float32).to(device)
 
     print('loaded trainable embedding matrix')
     
@@ -349,7 +344,7 @@ class ReviewDataset(Dataset):
 
 class Vocab:
 
-    def __init__( self, texts, store= True):
+    def __init__( self, texts, store= None):
         """
         :type texts: list of strings or Records
         :param texts: text of the reviews is either directly given or is extracted from the objects 
@@ -370,9 +365,9 @@ class Vocab:
         self.size_of_vocab += 1
 
         self.nlp = spacy.load('en_core_web_sm')
-        if os.path.isfile('./glove/mapping.json'):
+        if os.path.isfile(store):
             print('pre-existing mapping file')
-            with open('./glove/mapping.json', 'r') as f:
+            with open(store, 'r') as f:
                 self.word_to_idx = json.load( f )
             self.index_to_word = { v: k for k,v in self.word_to_idx.items()}
             self.size_of_vocab = len(self.word_to_idx)
@@ -398,8 +393,8 @@ class Vocab:
             else:
                 raise Exception('input should be a list of stings or a list of Review objects')
             
-            if store:
-                with open( './glove/mapping.json', 'w' ) as f:
+            if store is not None:
+                with open( store, 'w' ) as f:
                         print('creating a mapping file')
                         json.dump( self.word_to_idx, f )
 
@@ -505,7 +500,7 @@ class Vocab:
         return tensor( input_sequence ), tensor( original_length, dtype= int32)
 
     @classmethod
-    def from_files( cls, file_list, store=False ):
+    def from_files( cls, file_list, store= config.mapping_file ):
         texts = []
         for file_name in file_list:
             print(file_name)
@@ -515,24 +510,3 @@ class Vocab:
 
     def __len__(self):
         return len(self.word_to_idx)
-
-if __name__ == "__main__":
-
-    # process the raw xml
-    vocab = Vocab.from_files( [config.dataset_path, config.test_dataset_path], store= True )
-    
-    # dataset = ReviewDataset(config.dataset_path, vocab= vocab)
-    # dataset.write_to_file('./datasets/train_data.tsv')
-    # dataset = ReviewDataset(config.test_dataset_path,vocab= vocab)
-    # dataset.write_to_file('./datasets/test_data.tsv')
-
-    # # dataloader = DataLoader(dataset, batch_size= 2, shuffle= True, num_workers= 1)
-
-    # # # testing
-    # # for i,batch in enumerate(dataloader):
-    # #     print('i', i)
-    # #     pprint(batch)
-    # #     input()
-    # x = [0,1,2,1,2,0]
-    # y = [0,1,2,1,0,0]
-    # print(evaluation_metrics(y, x))
