@@ -39,3 +39,19 @@ Present in config.py
 * dataset: rest, laptop
 * embedding: concat_rest, concat_laptop, rest, laptop, glove_rest, glove_laptop
 * num_folds: Default= 1
+
+#### Hyperparameters for training HSAN
+* rnn_model: lstm or gru. Default= lstm
+* num_epochs: Default= 50
+* batch_size: Default= 64
+* hidden_dim: Default= 50
+* num_layers: Default= 2
+* bidirectiional: Default= True
+* dropout: Default= 0.3
+* use_crf: Default= True
+* use_pos: Default= False
+* optimizer: adadelta, adagrad, adam, adamax, asgd, rmsprop, sgd
+* model: hsan
+* dataset: rest OR laptop
+* embedding: concat_rest, OR concat_laptop
+* num_folds: Default= 1
