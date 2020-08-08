@@ -6,7 +6,7 @@ spacy, pytorch, [pytorch-crf](https://pytorch-crf.readthedocs.io/en/stable/), nu
 
 ## Installing
 1. Clone the repository
-2. Download glove embeddings (6B 100d) and paste them in embeddings/glove
+2. Download glove embeddings (6B 100d) and paste them in embeddings/glove. Link: (http://nlp.stanford.edu/data/glove.6B.zip)
 3. Paste domain embeddings in embedding/domain_embedding
 4. Run concat_embeddings.py to generate glove-domain concactenated embeddings
 
