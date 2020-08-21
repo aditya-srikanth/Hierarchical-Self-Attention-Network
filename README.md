@@ -1,57 +1,46 @@
-# Attention-Aspect-Extraction
+# Supervised Aspect Term extraction
+This project contains the code for reproduce experiments conducted in Aspect Term Extraction for Opinion Mining Using a Hierarchical Self-Attention Network.
+Note: the experiments conducted with BERT-based models were performed using the code linked with the corresponding papers.
+
+![HSAN](HSAN.png)
 
 ## Prerequisites
+1. For experiments implemented in PyTorch:
+    * pytorch, spacy, numpy, [pytorch-crf](https://github.com/kmkurn/pytorch-crf)
+2. For experiments implemented in Tensorflow:
+    * nltk, tensorflow, numpy, stanford-corenlp, [pycrfsuite](https://github.com/scrapinghub/python-crfsuite)
+3. Download and unzip Domain Embeddings. [Link](https://drive.google.com/file/d/12Pj5LkKnE_XQKIRABiviqgspA5DB1Zfn/view)  
 
-spacy, pytorch, [pytorch-crf](https://pytorch-crf.readthedocs.io/en/stable/), numpy
+## Experiments conduced: 
+#### In Tensorflow directory:
+1. LSTM/Bi-LSTM
+2. Jordan RNN/ Bi-Jordan RNN
+3. GRU/Bi-GRU
+4. Additional BI-RNN (any of the above 3) for character embeddings
+5. CNN
+6. A stacked model of any of the above RNN with the above CNN
+7. Softmax/CRF for final prediction
+8. Dense layer/ANN for decoding
+9. Incorporation of POS Tags
+  
+#### In PyTorch directory:
+1. LSTM/Bi-LSTM
+2. GRU/Bi-GRU
+3. CRF for Decoding
+4. Incorporation of Part Of Speech Tags
+5. BiLSTM + Global Context Generation
+6. BiLSTM + Word Context Generation
+7. HSAN
+8. DE-CNN [Xu et.al.](https://www.aclweb.org/anthology/P18-2094/)
 
-## Installing
-1. Clone the repository
-2. Download glove embeddings (6B 100d) and paste them in embeddings/glove. Link: (http://nlp.stanford.edu/data/glove.6B.zip)
-3. Paste domain embeddings in embedding/domain_embedding
-4. Run concat_embeddings.py to generate glove-domain concactenated embeddings
+## How to run experiments
+Consult the README files present within each directory.
 
-## Running the tests
-* Update configuration and run train.py
+## Results
+![Results](Results.png)
+## Authors
+* **Vamshi Aruru** - *Initial work* - [vamshiaruru](https://github.com/vamshiaruru)
+* **V Aditya Srikanth** - *Till HSAN* - [aditya-srikanth](https://github.com/aditya-srikanth)
 
-## Hyperparameters and configurations:
-Present in config.py
-### Defaults
-* seperator between the processed dataset (stored as a .tsv file). Default: \t
-* Padding token used for sequence labels as one-hot labels. Default: 3.
-* BIO dictionary: used for generating sequence labels.
-* POS MAP: for encoding POS tags. 
-* device: cpu or cuda
-* num_dataset_workers: for batching the dataset. Default 0.
-* max_review_length = 85
-
-### Hyper Parameters.
-* rnn_model: lstm or gru. Default= lstm
-* num_epochs: Default= 50
-* batch_size: Default= 64
-* hidden_dim: Default= 50
-* num_layers: Default= 2
-* bidirectiional: Default= True
-* dropout: Default= 0.5
-* use_crf: Default= True
-* use_pos: Default= False
-* optimizer: adadelta, adagrad, adam, adamax, asgd, rmsprop, sgd
-* model: lstm, attention_lstm, global_attention_lstm, hsan, decnn
-* dataset: rest, laptop
-* embedding: concat_rest, concat_laptop, rest, laptop, glove_rest, glove_laptop
-* num_folds: Default= 1
-
-#### Hyperparameters for training HSAN
-* rnn_model: lstm or gru. Default= lstm
-* num_epochs: Default= 50
-* batch_size: Default= 64
-* hidden_dim: Default= 50
-* num_layers: Default= 2
-* bidirectiional: Default= True
-* dropout: Default= 0.3
-* use_crf: Default= True
-* use_pos: Default= False
-* optimizer: adadelta, adagrad, adam, adamax, asgd, rmsprop, sgd
-* model: hsan
-* dataset: rest OR laptop
-* embedding: concat_rest, OR concat_laptop
-* num_folds: Default= 1
+## Acknowledgments
+* special thanks to **guillaumegenthial** for his awesome tutorial on Bi-LSTM and NER which can be read [here](https://guillaumegenthial.github.io/sequence-tagging-with-tensorflow.html)

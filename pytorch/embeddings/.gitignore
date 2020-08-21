@@ -1,0 +1,8 @@
+domain_embedding/*
+glove/*
+*.json
+*.npy
+
+!domain_embedding/.gitignore
+!glove/.gitignore
+!.gitignore

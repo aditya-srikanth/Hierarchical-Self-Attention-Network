@@ -1,3 +1,0 @@
-numpy
-spacy
-pytorch-crf

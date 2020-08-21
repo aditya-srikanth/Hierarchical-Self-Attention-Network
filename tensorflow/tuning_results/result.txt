@@ -1,0 +1,61 @@
+For laptops:
+  with cnn without crf without pos nltk tokenizer:
+  r_1 0.635416666667 - f_1 0.718800214247 - p_1 0.827373612824
+
+  with cnn witout crf with pos(36 dim) stanford tokenizer:
+  r_1 0.692234848485 - f_1 0.716666666667 - p_1 0.742886178862
+
+  with cnn with crf with pos(36 dim) stanford tokenizer:
+  r_1 0.686553030303 - f_1 0.752464971458 - p_1 0.832376578645
+
+  with cnn,lstm hybrid model, with crf, with pos stanford tokenizer:
+  r_1 0.734848484848 - f_1 0.794674859191 - p_1 0.865105908584
+
+  with lstm without crf without pos and split(" "):
+  r_1 0.69702780441 - f_1 0.786371011357 - p_1 0.901985111663
+  
+  with lstm with crf without pos and split(" "):
+  r_1 0.691275167785 - f_1 0.784121805329 - p_1 0.905778894472
+
+  with lstm with crf without pos and nltk tokenizer:
+  r_1 0.691943127962 - f_1 0.790043290043 - p_1 0.920554854981
+
+  with lstm with crf with pos and stanford tokenizer:
+  r_1 0.711848341232 - f_1 0.783924843424 - p_1 0.872241579559
+
+  with lstm with crf without pos and stanford tokenizer:
+  r_1 0.675829383886 - f_1 0.778809393774 - p_1 0.91881443299
+
+  with lstm with crf with ann pos and stanford tokenizer:
+  r_1 0.750946969697 - f_1 0.814168377823 - p_1 0.889013452915
+
+For restaurants:
+  with cnn without crf without pos nltk tokenizer:
+  r_1 0.760736196319 - f_1 0.801292407108 - p_1 0.846416382253
+
+  with cnn without crf with pos (36 dim) stanford tokenizer:
+  r_1 0.790797546012 - f_1 0.808657465496 - p_1 0.827342747112
+
+  with cnn with crf with pos (36 dim) stanford tokenizer:
+  r_1 0.871165644172 - f_1 0.843480843481 - p_1 0.817501439263
+  
+  with cnn, lstm hybrid model, with crf and pos stanford tokenizer:
+  r_1 0.846625766871 - f_1 0.865203761755 - p_1 0.884615384615
+
+  with lstm without CRF without pos and split(" "):
+  r_1 0.825170489771 - f_1 0.861209964413 - p_1 0.900541271989
+ 
+  with lstm with crf without pos and split(" "):
+  r_1 0.826410415375 - f_1 0.868970013038 - p_1 0.916151202749
+  
+  with lstm with crf without pos and nltk tokenizer:
+  r_1 0.844076120319 - f_1 0.87663372649 - p_1 0.911803713528
+
+  with lstm with crf with pos and stanford tokenizer:
+  r_1 0.872314303254 - f_1 0.880694143167 - p_1 0.889236545682
+
+  with lstm with crf without pos and stanford tokenizer:
+  r_1 0.842848373235 - f_1 0.880692751764 - p_1 0.922095366017
+
+  with lstm with crf with biann pos and stanford tokenizer:
+  r_1 0.870552147239 - f_1 0.889376371044 - p_1 0.909032671365

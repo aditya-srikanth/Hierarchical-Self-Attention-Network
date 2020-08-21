@@ -1,0 +1,37 @@
+dependencies that we get from stanford core nlp:
+  dependencies:
+  the index of the first word is 1.
+    [(u'ROOT', 0, 4),
+     (u'det', 3, 1),
+      (u'amod', 3, 2),
+       (u'nsubj', 4, 3),
+        (u'dobj', 4, 5),
+         (u'case', 9, 6),
+          (u'det', 9, 7),
+           (u'amod', 9, 8),
+            (u'nmod', 4, 9)]
+   we can get which word belongs to which index by using pos:
+     [(u'The', u'DT'),
+      (u'old', u'JJ'),
+       (u'man', u'NN'),
+        (u'shook', u'VBD'),
+         (u'hands', u'NNS'),
+          (u'with', u'IN'),
+           (u'the', u'DT'),
+            (u'young', u'JJ'),
+             (u'man', u'NN')]
+    Therefore our dependency corresponding to "det", 3, 1 is 
+      "det", man, the
+     The same depenency from StanfordDependencyParser will be
+       man "det" the
+     so the first index after dependency name is the left word, the second index is the right word.
+
+For comparison dependencies from stanfrod-dependency parser are as follows:
+[((u'shook', u'VBD'), u'nsubj', (u'man', u'NN')),
+ ((u'man', u'NN'), u'det', (u'The', u'DT')),
+ ((u'man', u'NN'), u'amod', (u'old', u'JJ')),
+ ((u'shook', u'VBD'), u'dobj', (u'hands', u'NNS')),
+ ((u'shook', u'VBD'), u'nmod', (u'man', u'NN')),
+ ((u'man', u'NN'), u'case', (u'with', u'IN')),
+ ((u'man', u'NN'), u'det', (u'the', u'DT')),
+ ((u'man', u'NN'), u'amod', (u'young', u'JJ'))]

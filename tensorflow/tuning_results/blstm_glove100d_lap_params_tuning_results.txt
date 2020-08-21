@@ -1,0 +1,1263 @@
+********************
+Best configuration so far!
+{
+  "recall": 0.6796019900497513, 
+  "precision": 0.8705879195756888, 
+  "fscore": 0.7616342888278679
+}
+Configuation:
+{
+  "lstm_ann_count": 40, 
+  "vector_file_2": "./vectors/pos_fasttext_lap_100d.npy", 
+  "single_ann": true, 
+  "bi_ann": false, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "c_dim": 10, 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "word_file": "./words/lap_pos_words.txt", 
+  "pos_train_file": "./pos_files/lap_train_pos.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/lap_train.xml", 
+  "use_char_embeddings": true, 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "lr": 0.01, 
+  "multi_rnn": false, 
+  "lr_decay": 0.2, 
+  "w_dim_2": 100, 
+  "test_file": "./test_data/lap_test.xml", 
+  "char_file": "./chars/lap_pos_chars.txt", 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 100, 
+  "pos_ann": false, 
+  "test_size": 0.1, 
+  "bidirectional": true, 
+  "vector_file": "./vectors/pos_glove_lap_100d.npy", 
+  "escape_word": "<ESCAPEWORD>", 
+  "raw_vectors": "./glove_100d.txt", 
+  "pos_test_file": "./pos_files/lap_test_pos.txt", 
+  "concat_pos": true, 
+  "pos_file": "./pos_npy/lap_pos.npy", 
+  "crf": true
+}
+*********************
+********************
+{
+  "recall": 0.6606965174129352, 
+  "precision": 0.8584919151014873, 
+  "fscore": 0.7457197106939004
+}
+Configuation:
+{
+  "lstm_ann_count": 40, 
+  "vector_file_2": "./vectors/pos_fasttext_lap_100d.npy", 
+  "single_ann": true, 
+  "bi_ann": false, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "c_dim": 20, 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "word_file": "./words/lap_pos_words.txt", 
+  "pos_train_file": "./pos_files/lap_train_pos.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/lap_train.xml", 
+  "use_char_embeddings": true, 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "lr": 0.01, 
+  "multi_rnn": false, 
+  "lr_decay": 0.2, 
+  "w_dim_2": 100, 
+  "test_file": "./test_data/lap_test.xml", 
+  "char_file": "./chars/lap_pos_chars.txt", 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 100, 
+  "pos_ann": false, 
+  "test_size": 0.1, 
+  "bidirectional": true, 
+  "vector_file": "./vectors/pos_glove_lap_100d.npy", 
+  "escape_word": "<ESCAPEWORD>", 
+  "raw_vectors": "./glove_100d.txt", 
+  "pos_test_file": "./pos_files/lap_test_pos.txt", 
+  "concat_pos": true, 
+  "pos_file": "./pos_npy/lap_pos.npy", 
+  "crf": true
+}
+*********************
+********************
+{
+  "recall": 0.6328358208955224, 
+  "precision": 0.8697707564894074, 
+  "fscore": 0.732265784234711
+}
+Configuation:
+{
+  "lstm_ann_count": 40, 
+  "vector_file_2": "./vectors/pos_fasttext_lap_100d.npy", 
+  "single_ann": true, 
+  "bi_ann": false, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "c_dim": 40, 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "word_file": "./words/lap_pos_words.txt", 
+  "pos_train_file": "./pos_files/lap_train_pos.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/lap_train.xml", 
+  "use_char_embeddings": true, 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "lr": 0.01, 
+  "multi_rnn": false, 
+  "lr_decay": 0.2, 
+  "w_dim_2": 100, 
+  "test_file": "./test_data/lap_test.xml", 
+  "char_file": "./chars/lap_pos_chars.txt", 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 100, 
+  "pos_ann": false, 
+  "test_size": 0.1, 
+  "bidirectional": true, 
+  "vector_file": "./vectors/pos_glove_lap_100d.npy", 
+  "escape_word": "<ESCAPEWORD>", 
+  "raw_vectors": "./glove_100d.txt", 
+  "pos_test_file": "./pos_files/lap_test_pos.txt", 
+  "concat_pos": true, 
+  "pos_file": "./pos_npy/lap_pos.npy", 
+  "crf": true
+}
+*********************
+********************
+{
+  "recall": 0.6746268656716418, 
+  "precision": 0.861335156795878, 
+  "fscore": 0.7563791064198205
+}
+Configuation:
+{
+  "lstm_ann_count": 40, 
+  "vector_file_2": "./vectors/pos_fasttext_lap_100d.npy", 
+  "single_ann": true, 
+  "bi_ann": false, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "c_dim": 10, 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "word_file": "./words/lap_pos_words.txt", 
+  "pos_train_file": "./pos_files/lap_train_pos.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/lap_train.xml", 
+  "use_char_embeddings": true, 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "lr": 0.01, 
+  "multi_rnn": false, 
+  "lr_decay": 0.5, 
+  "w_dim_2": 100, 
+  "test_file": "./test_data/lap_test.xml", 
+  "char_file": "./chars/lap_pos_chars.txt", 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 100, 
+  "pos_ann": false, 
+  "test_size": 0.1, 
+  "bidirectional": true, 
+  "vector_file": "./vectors/pos_glove_lap_100d.npy", 
+  "escape_word": "<ESCAPEWORD>", 
+  "raw_vectors": "./glove_100d.txt", 
+  "pos_test_file": "./pos_files/lap_test_pos.txt", 
+  "concat_pos": true, 
+  "pos_file": "./pos_npy/lap_pos.npy", 
+  "crf": true
+}
+*********************
+********************
+{
+  "recall": 0.6646766169154229, 
+  "precision": 0.8475078541645216, 
+  "fscore": 0.7441704355892876
+}
+Configuation:
+{
+  "lstm_ann_count": 40, 
+  "vector_file_2": "./vectors/pos_fasttext_lap_100d.npy", 
+  "single_ann": true, 
+  "bi_ann": false, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "c_dim": 20, 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "word_file": "./words/lap_pos_words.txt", 
+  "pos_train_file": "./pos_files/lap_train_pos.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/lap_train.xml", 
+  "use_char_embeddings": true, 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "lr": 0.01, 
+  "multi_rnn": false, 
+  "lr_decay": 0.5, 
+  "w_dim_2": 100, 
+  "test_file": "./test_data/lap_test.xml", 
+  "char_file": "./chars/lap_pos_chars.txt", 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 100, 
+  "pos_ann": false, 
+  "test_size": 0.1, 
+  "bidirectional": true, 
+  "vector_file": "./vectors/pos_glove_lap_100d.npy", 
+  "escape_word": "<ESCAPEWORD>", 
+  "raw_vectors": "./glove_100d.txt", 
+  "pos_test_file": "./pos_files/lap_test_pos.txt", 
+  "concat_pos": true, 
+  "pos_file": "./pos_npy/lap_pos.npy", 
+  "crf": true
+}
+*********************
+********************
+{
+  "recall": 0.6736318407960199, 
+  "precision": 0.822314805704741, 
+  "fscore": 0.7402811383654875
+}
+Configuation:
+{
+  "lstm_ann_count": 40, 
+  "vector_file_2": "./vectors/pos_fasttext_lap_100d.npy", 
+  "single_ann": true, 
+  "bi_ann": false, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "c_dim": 40, 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "word_file": "./words/lap_pos_words.txt", 
+  "pos_train_file": "./pos_files/lap_train_pos.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/lap_train.xml", 
+  "use_char_embeddings": true, 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "lr": 0.01, 
+  "multi_rnn": false, 
+  "lr_decay": 0.5, 
+  "w_dim_2": 100, 
+  "test_file": "./test_data/lap_test.xml", 
+  "char_file": "./chars/lap_pos_chars.txt", 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 100, 
+  "pos_ann": false, 
+  "test_size": 0.1, 
+  "bidirectional": true, 
+  "vector_file": "./vectors/pos_glove_lap_100d.npy", 
+  "escape_word": "<ESCAPEWORD>", 
+  "raw_vectors": "./glove_100d.txt", 
+  "pos_test_file": "./pos_files/lap_test_pos.txt", 
+  "concat_pos": true, 
+  "pos_file": "./pos_npy/lap_pos.npy", 
+  "crf": true
+}
+*********************
+********************
+{
+  "recall": 0.6701492537313433, 
+  "precision": 0.8724453546731393, 
+  "fscore": 0.7580250262971265
+}
+Configuation:
+{
+  "lstm_ann_count": 40, 
+  "vector_file_2": "./vectors/pos_fasttext_lap_100d.npy", 
+  "single_ann": true, 
+  "bi_ann": false, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "c_dim": 10, 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "word_file": "./words/lap_pos_words.txt", 
+  "pos_train_file": "./pos_files/lap_train_pos.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/lap_train.xml", 
+  "use_char_embeddings": true, 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "lr": 0.01, 
+  "multi_rnn": false, 
+  "lr_decay": 0.9, 
+  "w_dim_2": 100, 
+  "test_file": "./test_data/lap_test.xml", 
+  "char_file": "./chars/lap_pos_chars.txt", 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 100, 
+  "pos_ann": false, 
+  "test_size": 0.1, 
+  "bidirectional": true, 
+  "vector_file": "./vectors/pos_glove_lap_100d.npy", 
+  "escape_word": "<ESCAPEWORD>", 
+  "raw_vectors": "./glove_100d.txt", 
+  "pos_test_file": "./pos_files/lap_test_pos.txt", 
+  "concat_pos": true, 
+  "pos_file": "./pos_npy/lap_pos.npy", 
+  "crf": true
+}
+*********************
+********************
+{
+  "recall": 0.6407960199004975, 
+  "precision": 0.8918525554729936, 
+  "fscore": 0.7456150628243473
+}
+Configuation:
+{
+  "lstm_ann_count": 40, 
+  "vector_file_2": "./vectors/pos_fasttext_lap_100d.npy", 
+  "single_ann": true, 
+  "bi_ann": false, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "c_dim": 20, 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "word_file": "./words/lap_pos_words.txt", 
+  "pos_train_file": "./pos_files/lap_train_pos.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/lap_train.xml", 
+  "use_char_embeddings": true, 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "lr": 0.01, 
+  "multi_rnn": false, 
+  "lr_decay": 0.9, 
+  "w_dim_2": 100, 
+  "test_file": "./test_data/lap_test.xml", 
+  "char_file": "./chars/lap_pos_chars.txt", 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 100, 
+  "pos_ann": false, 
+  "test_size": 0.1, 
+  "bidirectional": true, 
+  "vector_file": "./vectors/pos_glove_lap_100d.npy", 
+  "escape_word": "<ESCAPEWORD>", 
+  "raw_vectors": "./glove_100d.txt", 
+  "pos_test_file": "./pos_files/lap_test_pos.txt", 
+  "concat_pos": true, 
+  "pos_file": "./pos_npy/lap_pos.npy", 
+  "crf": true
+}
+*********************
+********************
+{
+  "recall": 0.6681592039800995, 
+  "precision": 0.8598731604114812, 
+  "fscore": 0.7519802283206415
+}
+Configuation:
+{
+  "lstm_ann_count": 40, 
+  "vector_file_2": "./vectors/pos_fasttext_lap_100d.npy", 
+  "single_ann": true, 
+  "bi_ann": false, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "c_dim": 40, 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "word_file": "./words/lap_pos_words.txt", 
+  "pos_train_file": "./pos_files/lap_train_pos.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/lap_train.xml", 
+  "use_char_embeddings": true, 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "lr": 0.01, 
+  "multi_rnn": false, 
+  "lr_decay": 0.9, 
+  "w_dim_2": 100, 
+  "test_file": "./test_data/lap_test.xml", 
+  "char_file": "./chars/lap_pos_chars.txt", 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 100, 
+  "pos_ann": false, 
+  "test_size": 0.1, 
+  "bidirectional": true, 
+  "vector_file": "./vectors/pos_glove_lap_100d.npy", 
+  "escape_word": "<ESCAPEWORD>", 
+  "raw_vectors": "./glove_100d.txt", 
+  "pos_test_file": "./pos_files/lap_test_pos.txt", 
+  "concat_pos": true, 
+  "pos_file": "./pos_npy/lap_pos.npy", 
+  "crf": true
+}
+*********************
+********************
+Best configuration so far!
+{
+  "recall": 0.7029850746268657, 
+  "precision": 0.859613558338168, 
+  "fscore": 0.7734036132431541
+}
+Configuation:
+{
+  "lstm_ann_count": 40, 
+  "vector_file_2": "./vectors/pos_fasttext_lap_100d.npy", 
+  "single_ann": true, 
+  "bi_ann": false, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "c_dim": 10, 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "word_file": "./words/lap_pos_words.txt", 
+  "pos_train_file": "./pos_files/lap_train_pos.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/lap_train.xml", 
+  "use_char_embeddings": true, 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "lr": 0.005, 
+  "multi_rnn": false, 
+  "lr_decay": 0.2, 
+  "w_dim_2": 100, 
+  "test_file": "./test_data/lap_test.xml", 
+  "char_file": "./chars/lap_pos_chars.txt", 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 100, 
+  "pos_ann": false, 
+  "test_size": 0.1, 
+  "bidirectional": true, 
+  "vector_file": "./vectors/pos_glove_lap_100d.npy", 
+  "escape_word": "<ESCAPEWORD>", 
+  "raw_vectors": "./glove_100d.txt", 
+  "pos_test_file": "./pos_files/lap_test_pos.txt", 
+  "concat_pos": true, 
+  "pos_file": "./pos_npy/lap_pos.npy", 
+  "crf": true
+}
+*********************
+********************
+Best configuration so far!
+{
+  "recall": 0.6796019900497511, 
+  "precision": 0.9033942413714481, 
+  "fscore": 0.7755952099230216
+}
+Configuation:
+{
+  "lstm_ann_count": 40, 
+  "vector_file_2": "./vectors/pos_fasttext_lap_100d.npy", 
+  "single_ann": true, 
+  "bi_ann": false, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "c_dim": 20, 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "word_file": "./words/lap_pos_words.txt", 
+  "pos_train_file": "./pos_files/lap_train_pos.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/lap_train.xml", 
+  "use_char_embeddings": true, 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "lr": 0.005, 
+  "multi_rnn": false, 
+  "lr_decay": 0.2, 
+  "w_dim_2": 100, 
+  "test_file": "./test_data/lap_test.xml", 
+  "char_file": "./chars/lap_pos_chars.txt", 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 100, 
+  "pos_ann": false, 
+  "test_size": 0.1, 
+  "bidirectional": true, 
+  "vector_file": "./vectors/pos_glove_lap_100d.npy", 
+  "escape_word": "<ESCAPEWORD>", 
+  "raw_vectors": "./glove_100d.txt", 
+  "pos_test_file": "./pos_files/lap_test_pos.txt", 
+  "concat_pos": true, 
+  "pos_file": "./pos_npy/lap_pos.npy", 
+  "crf": true
+}
+*********************
+********************
+{
+  "recall": 0.681592039800995, 
+  "precision": 0.880429849131076, 
+  "fscore": 0.7683524380485206
+}
+Configuation:
+{
+  "lstm_ann_count": 40, 
+  "vector_file_2": "./vectors/pos_fasttext_lap_100d.npy", 
+  "single_ann": true, 
+  "bi_ann": false, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "c_dim": 40, 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "word_file": "./words/lap_pos_words.txt", 
+  "pos_train_file": "./pos_files/lap_train_pos.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/lap_train.xml", 
+  "use_char_embeddings": true, 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "lr": 0.005, 
+  "multi_rnn": false, 
+  "lr_decay": 0.2, 
+  "w_dim_2": 100, 
+  "test_file": "./test_data/lap_test.xml", 
+  "char_file": "./chars/lap_pos_chars.txt", 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 100, 
+  "pos_ann": false, 
+  "test_size": 0.1, 
+  "bidirectional": true, 
+  "vector_file": "./vectors/pos_glove_lap_100d.npy", 
+  "escape_word": "<ESCAPEWORD>", 
+  "raw_vectors": "./glove_100d.txt", 
+  "pos_test_file": "./pos_files/lap_test_pos.txt", 
+  "concat_pos": true, 
+  "pos_file": "./pos_npy/lap_pos.npy", 
+  "crf": true
+}
+*********************
+********************
+{
+  "recall": 0.6696517412935323, 
+  "precision": 0.8780326121223312, 
+  "fscore": 0.7597437572742614
+}
+Configuation:
+{
+  "lstm_ann_count": 40, 
+  "vector_file_2": "./vectors/pos_fasttext_lap_100d.npy", 
+  "single_ann": true, 
+  "bi_ann": false, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "c_dim": 10, 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "word_file": "./words/lap_pos_words.txt", 
+  "pos_train_file": "./pos_files/lap_train_pos.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/lap_train.xml", 
+  "use_char_embeddings": true, 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "lr": 0.005, 
+  "multi_rnn": false, 
+  "lr_decay": 0.5, 
+  "w_dim_2": 100, 
+  "test_file": "./test_data/lap_test.xml", 
+  "char_file": "./chars/lap_pos_chars.txt", 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 100, 
+  "pos_ann": false, 
+  "test_size": 0.1, 
+  "bidirectional": true, 
+  "vector_file": "./vectors/pos_glove_lap_100d.npy", 
+  "escape_word": "<ESCAPEWORD>", 
+  "raw_vectors": "./glove_100d.txt", 
+  "pos_test_file": "./pos_files/lap_test_pos.txt", 
+  "concat_pos": true, 
+  "pos_file": "./pos_npy/lap_pos.npy", 
+  "crf": true
+}
+*********************
+********************
+{
+  "recall": 0.6462686567164179, 
+  "precision": 0.9002273827063706, 
+  "fscore": 0.7517995247270338
+}
+Configuation:
+{
+  "lstm_ann_count": 40, 
+  "vector_file_2": "./vectors/pos_fasttext_lap_100d.npy", 
+  "single_ann": true, 
+  "bi_ann": false, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "c_dim": 20, 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "word_file": "./words/lap_pos_words.txt", 
+  "pos_train_file": "./pos_files/lap_train_pos.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/lap_train.xml", 
+  "use_char_embeddings": true, 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "lr": 0.005, 
+  "multi_rnn": false, 
+  "lr_decay": 0.5, 
+  "w_dim_2": 100, 
+  "test_file": "./test_data/lap_test.xml", 
+  "char_file": "./chars/lap_pos_chars.txt", 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 100, 
+  "pos_ann": false, 
+  "test_size": 0.1, 
+  "bidirectional": true, 
+  "vector_file": "./vectors/pos_glove_lap_100d.npy", 
+  "escape_word": "<ESCAPEWORD>", 
+  "raw_vectors": "./glove_100d.txt", 
+  "pos_test_file": "./pos_files/lap_test_pos.txt", 
+  "concat_pos": true, 
+  "pos_file": "./pos_npy/lap_pos.npy", 
+  "crf": true
+}
+*********************
+********************
+{
+  "recall": 0.6656716417910448, 
+  "precision": 0.8734361373386484, 
+  "fscore": 0.754212170986024
+}
+Configuation:
+{
+  "lstm_ann_count": 40, 
+  "vector_file_2": "./vectors/pos_fasttext_lap_100d.npy", 
+  "single_ann": true, 
+  "bi_ann": false, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "c_dim": 40, 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "word_file": "./words/lap_pos_words.txt", 
+  "pos_train_file": "./pos_files/lap_train_pos.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/lap_train.xml", 
+  "use_char_embeddings": true, 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "lr": 0.005, 
+  "multi_rnn": false, 
+  "lr_decay": 0.5, 
+  "w_dim_2": 100, 
+  "test_file": "./test_data/lap_test.xml", 
+  "char_file": "./chars/lap_pos_chars.txt", 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 100, 
+  "pos_ann": false, 
+  "test_size": 0.1, 
+  "bidirectional": true, 
+  "vector_file": "./vectors/pos_glove_lap_100d.npy", 
+  "escape_word": "<ESCAPEWORD>", 
+  "raw_vectors": "./glove_100d.txt", 
+  "pos_test_file": "./pos_files/lap_test_pos.txt", 
+  "concat_pos": true, 
+  "pos_file": "./pos_npy/lap_pos.npy", 
+  "crf": true
+}
+*********************
+********************
+Best configuration so far!
+{
+  "recall": 0.6980099502487561, 
+  "precision": 0.8797202797202797, 
+  "fscore": 0.7782851970611965
+}
+Configuation:
+{
+  "lstm_ann_count": 40, 
+  "vector_file_2": "./vectors/pos_fasttext_lap_100d.npy", 
+  "single_ann": true, 
+  "bi_ann": false, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "c_dim": 10, 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "word_file": "./words/lap_pos_words.txt", 
+  "pos_train_file": "./pos_files/lap_train_pos.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/lap_train.xml", 
+  "use_char_embeddings": true, 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "lr": 0.005, 
+  "multi_rnn": false, 
+  "lr_decay": 0.9, 
+  "w_dim_2": 100, 
+  "test_file": "./test_data/lap_test.xml", 
+  "char_file": "./chars/lap_pos_chars.txt", 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 100, 
+  "pos_ann": false, 
+  "test_size": 0.1, 
+  "bidirectional": true, 
+  "vector_file": "./vectors/pos_glove_lap_100d.npy", 
+  "escape_word": "<ESCAPEWORD>", 
+  "raw_vectors": "./glove_100d.txt", 
+  "pos_test_file": "./pos_files/lap_test_pos.txt", 
+  "concat_pos": true, 
+  "pos_file": "./pos_npy/lap_pos.npy", 
+  "crf": true
+}
+*********************
+********************
+{
+  "recall": 0.6731343283582089, 
+  "precision": 0.8695474868683876, 
+  "fscore": 0.7580779207944359
+}
+Configuation:
+{
+  "lstm_ann_count": 40, 
+  "vector_file_2": "./vectors/pos_fasttext_lap_100d.npy", 
+  "single_ann": true, 
+  "bi_ann": false, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "c_dim": 20, 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "word_file": "./words/lap_pos_words.txt", 
+  "pos_train_file": "./pos_files/lap_train_pos.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/lap_train.xml", 
+  "use_char_embeddings": true, 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "lr": 0.005, 
+  "multi_rnn": false, 
+  "lr_decay": 0.9, 
+  "w_dim_2": 100, 
+  "test_file": "./test_data/lap_test.xml", 
+  "char_file": "./chars/lap_pos_chars.txt", 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 100, 
+  "pos_ann": false, 
+  "test_size": 0.1, 
+  "bidirectional": true, 
+  "vector_file": "./vectors/pos_glove_lap_100d.npy", 
+  "escape_word": "<ESCAPEWORD>", 
+  "raw_vectors": "./glove_100d.txt", 
+  "pos_test_file": "./pos_files/lap_test_pos.txt", 
+  "concat_pos": true, 
+  "pos_file": "./pos_npy/lap_pos.npy", 
+  "crf": true
+}
+*********************
+********************
+{
+  "recall": 0.6606965174129353, 
+  "precision": 0.8728044199102117, 
+  "fscore": 0.7510293675134162
+}
+Configuation:
+{
+  "lstm_ann_count": 40, 
+  "vector_file_2": "./vectors/pos_fasttext_lap_100d.npy", 
+  "single_ann": true, 
+  "bi_ann": false, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "c_dim": 40, 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "word_file": "./words/lap_pos_words.txt", 
+  "pos_train_file": "./pos_files/lap_train_pos.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/lap_train.xml", 
+  "use_char_embeddings": true, 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "lr": 0.005, 
+  "multi_rnn": false, 
+  "lr_decay": 0.9, 
+  "w_dim_2": 100, 
+  "test_file": "./test_data/lap_test.xml", 
+  "char_file": "./chars/lap_pos_chars.txt", 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 100, 
+  "pos_ann": false, 
+  "test_size": 0.1, 
+  "bidirectional": true, 
+  "vector_file": "./vectors/pos_glove_lap_100d.npy", 
+  "escape_word": "<ESCAPEWORD>", 
+  "raw_vectors": "./glove_100d.txt", 
+  "pos_test_file": "./pos_files/lap_test_pos.txt", 
+  "concat_pos": true, 
+  "pos_file": "./pos_npy/lap_pos.npy", 
+  "crf": true
+}
+*********************
+********************
+{
+  "recall": 0.6681592039800995, 
+  "precision": 0.8701512914620334, 
+  "fscore": 0.7547353438381846
+}
+Configuation:
+{
+  "lstm_ann_count": 40, 
+  "vector_file_2": "./vectors/pos_fasttext_lap_100d.npy", 
+  "single_ann": true, 
+  "bi_ann": false, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "c_dim": 10, 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "word_file": "./words/lap_pos_words.txt", 
+  "pos_train_file": "./pos_files/lap_train_pos.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/lap_train.xml", 
+  "use_char_embeddings": true, 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "lr": 0.001, 
+  "multi_rnn": false, 
+  "lr_decay": 0.2, 
+  "w_dim_2": 100, 
+  "test_file": "./test_data/lap_test.xml", 
+  "char_file": "./chars/lap_pos_chars.txt", 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 100, 
+  "pos_ann": false, 
+  "test_size": 0.1, 
+  "bidirectional": true, 
+  "vector_file": "./vectors/pos_glove_lap_100d.npy", 
+  "escape_word": "<ESCAPEWORD>", 
+  "raw_vectors": "./glove_100d.txt", 
+  "pos_test_file": "./pos_files/lap_test_pos.txt", 
+  "concat_pos": true, 
+  "pos_file": "./pos_npy/lap_pos.npy", 
+  "crf": true
+}
+*********************
+********************
+{
+  "recall": 0.6432835820895523, 
+  "precision": 0.8770813167822885, 
+  "fscore": 0.7412603964523096
+}
+Configuation:
+{
+  "lstm_ann_count": 40, 
+  "vector_file_2": "./vectors/pos_fasttext_lap_100d.npy", 
+  "single_ann": true, 
+  "bi_ann": false, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "c_dim": 20, 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "word_file": "./words/lap_pos_words.txt", 
+  "pos_train_file": "./pos_files/lap_train_pos.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/lap_train.xml", 
+  "use_char_embeddings": true, 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "lr": 0.001, 
+  "multi_rnn": false, 
+  "lr_decay": 0.2, 
+  "w_dim_2": 100, 
+  "test_file": "./test_data/lap_test.xml", 
+  "char_file": "./chars/lap_pos_chars.txt", 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 100, 
+  "pos_ann": false, 
+  "test_size": 0.1, 
+  "bidirectional": true, 
+  "vector_file": "./vectors/pos_glove_lap_100d.npy", 
+  "escape_word": "<ESCAPEWORD>", 
+  "raw_vectors": "./glove_100d.txt", 
+  "pos_test_file": "./pos_files/lap_test_pos.txt", 
+  "concat_pos": true, 
+  "pos_file": "./pos_npy/lap_pos.npy", 
+  "crf": true
+}
+*********************
+********************
+{
+  "recall": 0.6074626865671642, 
+  "precision": 0.8995527997757091, 
+  "fscore": 0.7248797189977773
+}
+Configuation:
+{
+  "lstm_ann_count": 40, 
+  "vector_file_2": "./vectors/pos_fasttext_lap_100d.npy", 
+  "single_ann": true, 
+  "bi_ann": false, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "c_dim": 40, 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "word_file": "./words/lap_pos_words.txt", 
+  "pos_train_file": "./pos_files/lap_train_pos.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/lap_train.xml", 
+  "use_char_embeddings": true, 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "lr": 0.001, 
+  "multi_rnn": false, 
+  "lr_decay": 0.2, 
+  "w_dim_2": 100, 
+  "test_file": "./test_data/lap_test.xml", 
+  "char_file": "./chars/lap_pos_chars.txt", 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 100, 
+  "pos_ann": false, 
+  "test_size": 0.1, 
+  "bidirectional": true, 
+  "vector_file": "./vectors/pos_glove_lap_100d.npy", 
+  "escape_word": "<ESCAPEWORD>", 
+  "raw_vectors": "./glove_100d.txt", 
+  "pos_test_file": "./pos_files/lap_test_pos.txt", 
+  "concat_pos": true, 
+  "pos_file": "./pos_npy/lap_pos.npy", 
+  "crf": true
+}
+*********************
+********************
+{
+  "recall": 0.6502487562189055, 
+  "precision": 0.8896032805698724, 
+  "fscore": 0.7512437181018502
+}
+Configuation:
+{
+  "lstm_ann_count": 40, 
+  "vector_file_2": "./vectors/pos_fasttext_lap_100d.npy", 
+  "single_ann": true, 
+  "bi_ann": false, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "c_dim": 10, 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "word_file": "./words/lap_pos_words.txt", 
+  "pos_train_file": "./pos_files/lap_train_pos.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/lap_train.xml", 
+  "use_char_embeddings": true, 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "lr": 0.001, 
+  "multi_rnn": false, 
+  "lr_decay": 0.5, 
+  "w_dim_2": 100, 
+  "test_file": "./test_data/lap_test.xml", 
+  "char_file": "./chars/lap_pos_chars.txt", 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 100, 
+  "pos_ann": false, 
+  "test_size": 0.1, 
+  "bidirectional": true, 
+  "vector_file": "./vectors/pos_glove_lap_100d.npy", 
+  "escape_word": "<ESCAPEWORD>", 
+  "raw_vectors": "./glove_100d.txt", 
+  "pos_test_file": "./pos_files/lap_test_pos.txt", 
+  "concat_pos": true, 
+  "pos_file": "./pos_npy/lap_pos.npy", 
+  "crf": true
+}
+*********************
+********************
+{
+  "recall": 0.645771144278607, 
+  "precision": 0.8891954967062832, 
+  "fscore": 0.7479651407106621
+}
+Configuation:
+{
+  "lstm_ann_count": 40, 
+  "vector_file_2": "./vectors/pos_fasttext_lap_100d.npy", 
+  "single_ann": true, 
+  "bi_ann": false, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "c_dim": 20, 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "word_file": "./words/lap_pos_words.txt", 
+  "pos_train_file": "./pos_files/lap_train_pos.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/lap_train.xml", 
+  "use_char_embeddings": true, 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "lr": 0.001, 
+  "multi_rnn": false, 
+  "lr_decay": 0.5, 
+  "w_dim_2": 100, 
+  "test_file": "./test_data/lap_test.xml", 
+  "char_file": "./chars/lap_pos_chars.txt", 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 100, 
+  "pos_ann": false, 
+  "test_size": 0.1, 
+  "bidirectional": true, 
+  "vector_file": "./vectors/pos_glove_lap_100d.npy", 
+  "escape_word": "<ESCAPEWORD>", 
+  "raw_vectors": "./glove_100d.txt", 
+  "pos_test_file": "./pos_files/lap_test_pos.txt", 
+  "concat_pos": true, 
+  "pos_file": "./pos_npy/lap_pos.npy", 
+  "crf": true
+}
+*********************
+********************
+{
+  "recall": 0.6805970149253732, 
+  "precision": 0.8241068540985506, 
+  "fscore": 0.7454223238506751
+}
+Configuation:
+{
+  "lstm_ann_count": 40, 
+  "vector_file_2": "./vectors/pos_fasttext_lap_100d.npy", 
+  "single_ann": true, 
+  "bi_ann": false, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "c_dim": 40, 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "word_file": "./words/lap_pos_words.txt", 
+  "pos_train_file": "./pos_files/lap_train_pos.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/lap_train.xml", 
+  "use_char_embeddings": true, 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "lr": 0.001, 
+  "multi_rnn": false, 
+  "lr_decay": 0.5, 
+  "w_dim_2": 100, 
+  "test_file": "./test_data/lap_test.xml", 
+  "char_file": "./chars/lap_pos_chars.txt", 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 100, 
+  "pos_ann": false, 
+  "test_size": 0.1, 
+  "bidirectional": true, 
+  "vector_file": "./vectors/pos_glove_lap_100d.npy", 
+  "escape_word": "<ESCAPEWORD>", 
+  "raw_vectors": "./glove_100d.txt", 
+  "pos_test_file": "./pos_files/lap_test_pos.txt", 
+  "concat_pos": true, 
+  "pos_file": "./pos_npy/lap_pos.npy", 
+  "crf": true
+}
+*********************
+********************
+{
+  "recall": 0.6502487562189055, 
+  "precision": 0.8897657121984128, 
+  "fscore": 0.7513730436637732
+}
+Configuation:
+{
+  "lstm_ann_count": 40, 
+  "vector_file_2": "./vectors/pos_fasttext_lap_100d.npy", 
+  "single_ann": true, 
+  "bi_ann": false, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "c_dim": 10, 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "word_file": "./words/lap_pos_words.txt", 
+  "pos_train_file": "./pos_files/lap_train_pos.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/lap_train.xml", 
+  "use_char_embeddings": true, 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "lr": 0.001, 
+  "multi_rnn": false, 
+  "lr_decay": 0.9, 
+  "w_dim_2": 100, 
+  "test_file": "./test_data/lap_test.xml", 
+  "char_file": "./chars/lap_pos_chars.txt", 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 100, 
+  "pos_ann": false, 
+  "test_size": 0.1, 
+  "bidirectional": true, 
+  "vector_file": "./vectors/pos_glove_lap_100d.npy", 
+  "escape_word": "<ESCAPEWORD>", 
+  "raw_vectors": "./glove_100d.txt", 
+  "pos_test_file": "./pos_files/lap_test_pos.txt", 
+  "concat_pos": true, 
+  "pos_file": "./pos_npy/lap_pos.npy", 
+  "crf": true
+}
+*********************
+********************
+{
+  "recall": 0.6407960199004975, 
+  "precision": 0.898246610072755, 
+  "fscore": 0.7477157960514095
+}
+Configuation:
+{
+  "lstm_ann_count": 40, 
+  "vector_file_2": "./vectors/pos_fasttext_lap_100d.npy", 
+  "single_ann": true, 
+  "bi_ann": false, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "c_dim": 20, 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "word_file": "./words/lap_pos_words.txt", 
+  "pos_train_file": "./pos_files/lap_train_pos.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/lap_train.xml", 
+  "use_char_embeddings": true, 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "lr": 0.001, 
+  "multi_rnn": false, 
+  "lr_decay": 0.9, 
+  "w_dim_2": 100, 
+  "test_file": "./test_data/lap_test.xml", 
+  "char_file": "./chars/lap_pos_chars.txt", 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 100, 
+  "pos_ann": false, 
+  "test_size": 0.1, 
+  "bidirectional": true, 
+  "vector_file": "./vectors/pos_glove_lap_100d.npy", 
+  "escape_word": "<ESCAPEWORD>", 
+  "raw_vectors": "./glove_100d.txt", 
+  "pos_test_file": "./pos_files/lap_test_pos.txt", 
+  "concat_pos": true, 
+  "pos_file": "./pos_npy/lap_pos.npy", 
+  "crf": true
+}
+*********************
+********************
+{
+  "recall": 0.63681592039801, 
+  "precision": 0.8689682770835848, 
+  "fscore": 0.7343875692877134
+}
+Configuation:
+{
+  "lstm_ann_count": 40, 
+  "vector_file_2": "./vectors/pos_fasttext_lap_100d.npy", 
+  "single_ann": true, 
+  "bi_ann": false, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "c_dim": 40, 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "word_file": "./words/lap_pos_words.txt", 
+  "pos_train_file": "./pos_files/lap_train_pos.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/lap_train.xml", 
+  "use_char_embeddings": true, 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "lr": 0.001, 
+  "multi_rnn": false, 
+  "lr_decay": 0.9, 
+  "w_dim_2": 100, 
+  "test_file": "./test_data/lap_test.xml", 
+  "char_file": "./chars/lap_pos_chars.txt", 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 100, 
+  "pos_ann": false, 
+  "test_size": 0.1, 
+  "bidirectional": true, 
+  "vector_file": "./vectors/pos_glove_lap_100d.npy", 
+  "escape_word": "<ESCAPEWORD>", 
+  "raw_vectors": "./glove_100d.txt", 
+  "pos_test_file": "./pos_files/lap_test_pos.txt", 
+  "concat_pos": true, 
+  "pos_file": "./pos_npy/lap_pos.npy", 
+  "crf": true
+}
+*********************
+Best configuration: 
+{
+  "lstm_ann_count": 40, 
+  "vector_file_2": "./vectors/pos_fasttext_lap_100d.npy", 
+  "single_ann": true, 
+  "bi_ann": false, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "c_dim": 10, 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "word_file": "./words/lap_pos_words.txt", 
+  "pos_train_file": "./pos_files/lap_train_pos.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/lap_train.xml", 
+  "use_char_embeddings": true, 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "lr": 0.005, 
+  "multi_rnn": false, 
+  "lr_decay": 0.9, 
+  "w_dim_2": 100, 
+  "test_file": "./test_data/lap_test.xml", 
+  "char_file": "./chars/lap_pos_chars.txt", 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 100, 
+  "pos_ann": false, 
+  "test_size": 0.1, 
+  "bidirectional": true, 
+  "vector_file": "./vectors/pos_glove_lap_100d.npy", 
+  "escape_word": "<ESCAPEWORD>", 
+  "raw_vectors": "./glove_100d.txt", 
+  "pos_test_file": "./pos_files/lap_test_pos.txt", 
+  "concat_pos": true, 
+  "pos_file": "./pos_npy/lap_pos.npy", 
+  "crf": true
+}
+with score:
+{
+  "recall": 0.6980099502487561, 
+  "precision": 0.8797202797202797, 
+  "fscore": 0.7782851970611965
+}

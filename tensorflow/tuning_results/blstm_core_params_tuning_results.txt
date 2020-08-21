@@ -1,0 +1,361 @@
+********************
+Best configuration so far!
+{
+  "recall": 0.8513383665065205, 
+  "precision": 0.8907596626635221, 
+  "fscore": 0.8704827024859643
+}
+Configuation:
+{
+  "lstm_ann_count": 20, 
+  "raw_vectors": "./glove.6B.{}d.txt", 
+  "test_file": "./test_data/rest_test.xml", 
+  "single_ann": false, 
+  "bi_ann": true, 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 100, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "pos_ann": false, 
+  "c_dim": 10, 
+  "bidirectional": true, 
+  "vector_file": "./glove_vectors/glove_pos_rest_100d.npy", 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "escape_word": "<ESCAPEWORD>", 
+  "word_file": "./words/rest_pos_words.txt", 
+  "pos_test_file": "./pos_files/rest_test_pos_parsed.txt", 
+  "pos_train_file": "./pos_files/rest_train_pos_parsed.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/rest_train.xml", 
+  "use_char_embeddings": false, 
+  "char_file": "./chars/rest_pos_chars.txt", 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "crf": true, 
+  "concat_pos": false, 
+  "pos_file": "./pos_npy/rest_pos.npy", 
+  "test_size": 0.1
+}
+*********************
+********************
+Best configuration so far!
+{
+  "recall": 0.8532143674216427, 
+  "precision": 0.8948139258189773, 
+  "fscore": 0.8733657241979571
+}
+Configuation:
+{
+  "lstm_ann_count": 20, 
+  "raw_vectors": "./glove.6B.{}d.txt", 
+  "test_file": "./test_data/rest_test.xml", 
+  "single_ann": false, 
+  "bi_ann": true, 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 100, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "pos_ann": false, 
+  "c_dim": 20, 
+  "bidirectional": true, 
+  "vector_file": "./glove_vectors/glove_pos_rest_100d.npy", 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "escape_word": "<ESCAPEWORD>", 
+  "word_file": "./words/rest_pos_words.txt", 
+  "pos_test_file": "./pos_files/rest_test_pos_parsed.txt", 
+  "pos_train_file": "./pos_files/rest_train_pos_parsed.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/rest_train.xml", 
+  "use_char_embeddings": false, 
+  "char_file": "./chars/rest_pos_chars.txt", 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "crf": true, 
+  "concat_pos": false, 
+  "pos_file": "./pos_npy/rest_pos.npy", 
+  "test_size": 0.1
+}
+*********************
+********************
+{
+  "recall": 0.8476321207961565, 
+  "precision": 0.8974105088531347, 
+  "fscore": 0.8716797899479835
+}
+Configuation:
+{
+  "lstm_ann_count": 20, 
+  "raw_vectors": "./glove.6B.{}d.txt", 
+  "test_file": "./test_data/rest_test.xml", 
+  "single_ann": false, 
+  "bi_ann": true, 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 100, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "pos_ann": false, 
+  "c_dim": 30, 
+  "bidirectional": true, 
+  "vector_file": "./glove_vectors/glove_pos_rest_100d.npy", 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "escape_word": "<ESCAPEWORD>", 
+  "word_file": "./words/rest_pos_words.txt", 
+  "pos_test_file": "./pos_files/rest_test_pos_parsed.txt", 
+  "pos_train_file": "./pos_files/rest_train_pos_parsed.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/rest_train.xml", 
+  "use_char_embeddings": false, 
+  "char_file": "./chars/rest_pos_chars.txt", 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "crf": true, 
+  "concat_pos": false, 
+  "pos_file": "./pos_npy/rest_pos.npy", 
+  "test_size": 0.1
+}
+*********************
+********************
+{
+  "recall": 0.8529855868222376, 
+  "precision": 0.8942843847749266, 
+  "fscore": 0.8730569969141111
+}
+Configuation:
+{
+  "lstm_ann_count": 20, 
+  "raw_vectors": "./glove.6B.{}d.txt", 
+  "test_file": "./test_data/rest_test.xml", 
+  "single_ann": false, 
+  "bi_ann": true, 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 100, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "pos_ann": false, 
+  "c_dim": 40, 
+  "bidirectional": true, 
+  "vector_file": "./glove_vectors/glove_pos_rest_100d.npy", 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "escape_word": "<ESCAPEWORD>", 
+  "word_file": "./words/rest_pos_words.txt", 
+  "pos_test_file": "./pos_files/rest_test_pos_parsed.txt", 
+  "pos_train_file": "./pos_files/rest_train_pos_parsed.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/rest_train.xml", 
+  "use_char_embeddings": false, 
+  "char_file": "./chars/rest_pos_chars.txt", 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "crf": true, 
+  "concat_pos": false, 
+  "pos_file": "./pos_npy/rest_pos.npy", 
+  "test_size": 0.1
+}
+*********************
+********************
+{
+  "recall": 0.8506062685884237, 
+  "precision": 0.8950683761112448, 
+  "fscore": 0.8720350829527455
+}
+Configuation:
+{
+  "lstm_ann_count": 20, 
+  "raw_vectors": "./glove.6B.{}d.txt", 
+  "test_file": "./test_data/rest_test.xml", 
+  "single_ann": false, 
+  "bi_ann": true, 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 300, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "pos_ann": false, 
+  "c_dim": 10, 
+  "bidirectional": true, 
+  "vector_file": "./glove_vectors/glove_pos_rest_100d.npy", 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "escape_word": "<ESCAPEWORD>", 
+  "word_file": "./words/rest_pos_words.txt", 
+  "pos_test_file": "./pos_files/rest_test_pos_parsed.txt", 
+  "pos_train_file": "./pos_files/rest_train_pos_parsed.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/rest_train.xml", 
+  "use_char_embeddings": false, 
+  "char_file": "./chars/rest_pos_chars.txt", 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "crf": true, 
+  "concat_pos": false, 
+  "pos_file": "./pos_npy/rest_pos.npy", 
+  "test_size": 0.1
+}
+*********************
+********************
+{
+  "recall": 0.8425531914893617, 
+  "precision": 0.9021251756367092, 
+  "fscore": 0.8711046711411111
+}
+Configuation:
+{
+  "lstm_ann_count": 20, 
+  "raw_vectors": "./glove.6B.{}d.txt", 
+  "test_file": "./test_data/rest_test.xml", 
+  "single_ann": false, 
+  "bi_ann": true, 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 300, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "pos_ann": false, 
+  "c_dim": 20, 
+  "bidirectional": true, 
+  "vector_file": "./glove_vectors/glove_pos_rest_100d.npy", 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "escape_word": "<ESCAPEWORD>", 
+  "word_file": "./words/rest_pos_words.txt", 
+  "pos_test_file": "./pos_files/rest_test_pos_parsed.txt", 
+  "pos_train_file": "./pos_files/rest_train_pos_parsed.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/rest_train.xml", 
+  "use_char_embeddings": false, 
+  "char_file": "./chars/rest_pos_chars.txt", 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "crf": true, 
+  "concat_pos": false, 
+  "pos_file": "./pos_npy/rest_pos.npy", 
+  "test_size": 0.1
+}
+*********************
+********************
+{
+  "recall": 0.8468542667581788, 
+  "precision": 0.8972251953471203, 
+  "fscore": 0.8710492134316407
+}
+Configuation:
+{
+  "lstm_ann_count": 20, 
+  "raw_vectors": "./glove.6B.{}d.txt", 
+  "test_file": "./test_data/rest_test.xml", 
+  "single_ann": false, 
+  "bi_ann": true, 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 300, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "pos_ann": false, 
+  "c_dim": 30, 
+  "bidirectional": true, 
+  "vector_file": "./glove_vectors/glove_pos_rest_100d.npy", 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "escape_word": "<ESCAPEWORD>", 
+  "word_file": "./words/rest_pos_words.txt", 
+  "pos_test_file": "./pos_files/rest_test_pos_parsed.txt", 
+  "pos_train_file": "./pos_files/rest_train_pos_parsed.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/rest_train.xml", 
+  "use_char_embeddings": false, 
+  "char_file": "./chars/rest_pos_chars.txt", 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "crf": true, 
+  "concat_pos": false, 
+  "pos_file": "./pos_npy/rest_pos.npy", 
+  "test_size": 0.1
+}
+*********************
+********************
+{
+  "recall": 0.8503774879890186, 
+  "precision": 0.8948744080944568, 
+  "fscore": 0.8719076495565197
+}
+Configuation:
+{
+  "lstm_ann_count": 20, 
+  "raw_vectors": "./glove.6B.{}d.txt", 
+  "test_file": "./test_data/rest_test.xml", 
+  "single_ann": false, 
+  "bi_ann": true, 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 300, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "pos_ann": false, 
+  "c_dim": 40, 
+  "bidirectional": true, 
+  "vector_file": "./glove_vectors/glove_pos_rest_100d.npy", 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "escape_word": "<ESCAPEWORD>", 
+  "word_file": "./words/rest_pos_words.txt", 
+  "pos_test_file": "./pos_files/rest_test_pos_parsed.txt", 
+  "pos_train_file": "./pos_files/rest_train_pos_parsed.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/rest_train.xml", 
+  "use_char_embeddings": false, 
+  "char_file": "./chars/rest_pos_chars.txt", 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "crf": true, 
+  "concat_pos": false, 
+  "pos_file": "./pos_npy/rest_pos.npy", 
+  "test_size": 0.1
+}
+*********************
+Best configuration: 
+{
+  "lstm_ann_count": 20, 
+  "raw_vectors": "./glove.6B.{}d.txt", 
+  "test_file": "./test_data/rest_test.xml", 
+  "single_ann": false, 
+  "bi_ann": true, 
+  "dropout": 0.5, 
+  "use_text_dataset": false, 
+  "w_dim": 100, 
+  "epochs": 30, 
+  "use_gru": false, 
+  "pos_ann": false, 
+  "c_dim": 20, 
+  "bidirectional": true, 
+  "vector_file": "./glove_vectors/glove_pos_rest_100d.npy", 
+  "nepoch_no_improv": 5, 
+  "use_pos": true, 
+  "escape_word": "<ESCAPEWORD>", 
+  "word_file": "./words/rest_pos_words.txt", 
+  "pos_test_file": "./pos_files/rest_test_pos_parsed.txt", 
+  "pos_train_file": "./pos_files/rest_train_pos_parsed.txt", 
+  "tokenizer": false, 
+  "train_file": "./train_data/rest_train.xml", 
+  "use_char_embeddings": false, 
+  "char_file": "./chars/rest_pos_chars.txt", 
+  "use_window": false, 
+  "pos_ann_count": 20, 
+  "crf": true, 
+  "concat_pos": false, 
+  "pos_file": "./pos_npy/rest_pos.npy", 
+  "test_size": 0.1
+}
+with score:
+{
+  "recall": 0.8532143674216427, 
+  "precision": 0.8948139258189773, 
+  "fscore": 0.8733657241979571
+}

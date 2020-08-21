@@ -1,0 +1,9 @@
+cnn_results/
+lstm_results/
+results/
+.idea/
+glove*.txt
+amazon*.txt
+word2vec*.txt
+fasttext*.txt
+*.pyc

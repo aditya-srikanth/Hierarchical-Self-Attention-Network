@@ -1,0 +1,161 @@
+For restaurants:
+With LSTM:
+  With CRF, With POS:
+    p_1: 0.786803636747
+    r_1: 0.799678572395
+    f_1: 0.791774554931
+
+  With CRF , Without POS:
+    p_1: 0.89288111462
+    r_1: 0.841370714889
+    f_1: 0.865988393397
+
+  Without CRF, with bi partite ANN POS:
+    p_1: 0.888528435289
+    r_1: 0.851014868651
+    f_1: 0.868869727232
+
+  with CRF, with single ANN Pos:
+    r_1: 0.8626930655182358, 
+    p_1: 0.8993620994161711, 
+    f_1: 0.8804854409985255
+
+    p_1: 0.894323862794
+    r_1: 0.852756806223
+    f_1: 0.872961698095
+
+  With CRF, Wth bi partite ANN Pos:
+    p_1: 0.8920479204827243, 
+    r_1: 0.8699455268007739, 
+    f_1: 0.8806851343190566
+
+    p_1: 0.883725318662
+    r_1: 0.862777396477
+    f_1: 0.87331904152
+
+    p_1: 0.892953290195
+    r_1: 0.856142759094
+    f_1: 0.874025452861
+
+  With CRF, with dense ANN Pos:
+    p_1: 0.892277440122
+    r_1: 0.852802562343
+    f_1: 0.871958969419
+
+  With crf, with single directional LSTM, bi partite ANN POS:
+    p_1: 0.88929874812
+    r_1: 0.826584305651
+    f_1: 0.856716213608
+
+  with crf, with bi-GRU and bi partite ANN POS:
+    p_1: 0.872777473462
+    r_1: 0.851338366507
+    f_1: 0.861775042318
+
+  With CRF, with BI-lstm without char embeddings with pos:
+    p_1: 0.888266411806
+    r_1: 0.855959734615
+    f_1: 0.871711410259
+ 
+ With CRF, with BI-lstm with window size 3 without char embeddings with pos:
+    p_1: 0.897463509807
+    r_1: 0.842049874171
+    f_1: 0.868651032595
+
+ With CRF, with uni directional GRU without char embeddings or pos and window size 3:
+   p_1: 0.880083294
+   r_1: 0.829777471897
+   f_1: 0.853933761139
+
+With CNN:
+
+  CNN single ANN pos at the end with CRF:
+    p_1: 0.8457520769175589, 
+    r_1: 0.8262881538248223, 
+    f_1: 0.8338636581480946
+
+    p_1: 0.863536983582
+    r_1: 0.805353466026
+    f_1: 0.832765647036
+
+  CNN no ann, but pos concatenated at end:
+    p_1: 0.835680632659
+    r_1: 0.82306607202
+    f_1: 0.825047077566
+
+  CNN bi ann with CRF:
+    p_1: 0.8408345775313191,
+    r_1: 0.8299477802110374,  
+    f_1: 0.8345342421865668
+
+    p_1: 0.871543156114
+    r_1: 0.796705559369
+    f_1: 0.831475791526
+
+  CNN bi ann without CRF:
+    p_1: 0.851754965341
+    r_1: 0.724803530805
+    f_1: 0.781184851708
+
+  Hybrid LSTM-CNN bi ann with CRF:
+    p_1: 0.867496236445
+    r_1: 0.810697354921
+    f_1: 0.836957386448
+
+  Hybrid GRU-CNN bi ann with CRF:
+    p_1: 0.820084964818
+    r_1: 0.859171397789
+    f_1: 0.835833714101
+
+  Hybrid RNN-CNN bi ann with CRF:
+    p_1: 0.885265740438
+    r_1: 0.796430676897
+    f_1: 0.834945669778
+  Plain CNN with average pooling instead of maxpooling:
+    p_1: 0.864607038706
+    r_1: 0.791901166781
+    f_1: 0.826355441001
+
+With 300 wdim and 100 cdim and biann:
+  p_1: 0.882678909105
+  r_1: 0.854266758179
+  f_1: 0.868035610366
+
+with 300 wdim and 100 cdim and singleann:
+  p_1: 0.90151837821
+  r_1: 0.843697094486
+  f_1: 0.871322753188
+
+With Concat pos = TRUE with dense layer for bi-lstm:
+p_1: 0.898461820808
+r_1: 0.864241592313
+f_1: 0.880884757448
+
+p_1: 0.891326249991
+r_1: 0.862960420956
+f_1: 0.876712665118
+
+p_1: 0.889211839785
+r_1: 0.866483642187
+f_1: 0.877631329362
+
+with concat pos = True and ANN:
+p_1: 0.888279178521
+r_1: 0.868679935941
+f_1: 0.878309388149
+
+p_1: 0.891245445626
+r_1: 0.865705788149
+f_1: 0.878156607497
+
+with pos = False:
+p_1: 0.894076823211
+r_1: 0.858086717137
+f_1: 0.875655692574
+
+
+with pos = False and chars = False:
+p_1: 0.906149842416
+r_1: 0.838128011012
+f_1: 0.870702180014
+
