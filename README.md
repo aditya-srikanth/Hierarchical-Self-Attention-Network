@@ -38,7 +38,7 @@ Consult the README files present within each directory.
 
 ## Results
 ![Results](Results.png)
-## Authors
+## Points Of Contact
 * **Vamshi Aruru** - *Initial work* - [vamshiaruru](https://github.com/vamshiaruru)
 * **V Aditya Srikanth** - *Till HSAN* - [aditya-srikanth](https://github.com/aditya-srikanth)
 
