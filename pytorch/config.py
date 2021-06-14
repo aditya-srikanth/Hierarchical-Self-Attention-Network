@@ -16,7 +16,7 @@ rnn_model = 'lstm'
 
 # hyper parameters.
 num_epochs = 200
-lambda1=5
+lambda1=1
 batch_size = 64
 hidden_dim = 50
 num_layers = 2
@@ -24,7 +24,7 @@ bidirectiional = True
 dropout = 0.5
 use_crf = True
 use_pos = False
-optimizer = 'adam' # adadelta, adagrad, adam, adamax, asgd, rmsprop, sgd
+optimizer = 'adadelta' # adadelta, adagrad, adam, adamax, asgd, rmsprop, sgd
 model = 'hsan' # lstm, attention_lstm, global_attention_lstm, hsan, decnn
 dataset = 'rest' # rest, laptop
 embedding = 'concat_rest' # concat_rest, concat_laptop, rest, laptop, glove_rest, glove_laptop
