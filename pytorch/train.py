@@ -16,20 +16,24 @@ from model import AttentionAspectExtraction, LSTM, GlobalAttentionAspectExtracti
                 HSAN, DECNN
 
 class Trainer:
-    def __init__(self, model, optimizer, loss_function= None, num_folds= config.num_folds):
+    def __init__(self, model, optimizer, train_dataset,test_dataset,num_folds= config.num_folds,loss_function= None):
         
         self.num_folds= num_folds
         assert num_folds >= 1
 
-        self.loss_function = loss_function 
+        
         self.use_crf = config.use_crf
 
         vocab = Vocab.from_files( [config.dataset_path, config.test_dataset_path], store= config.mapping_file )
     
-        self.train_dataset = ReviewDataset(config.dataset_path, preprocessed= False, vocab= vocab)
-        self.test_dataset = ReviewDataset(config.test_dataset_path, preprocessed= False, vocab= vocab)
+        #self.train_dataset = ReviewDataset(config.dataset_path, preprocessed= False, vocab= vocab)
+        #self.test_dataset = ReviewDataset(config.test_dataset_path, preprocessed= False, vocab= vocab)
     
-        self.model = model( vocab, embedding_path= config.word_embedding_path, use_crf= config.use_crf ).to(config.device)
+        #self.model = model( vocab, embedding_path= config.word_embedding_path, use_crf= config.use_crf ).to(config.device)
+        
+        self.train_dataset=train_dataset
+        self.test_dataset=test_dataset
+        self.model=model
         self.optimizer = optimizer(self.model.parameters())
 
         if not self.use_crf and loss_function is None:
@@ -37,7 +41,7 @@ class Trainer:
         
         self.device = torch.device( config.device if torch.cuda.is_available() else 'cpu')
         self.model.to( self.device )
-        print(self.model)
+        
         
         print('using device: ',self.device)
 
@@ -55,23 +59,28 @@ class Trainer:
 
         train_dataloader = DataLoader( train_dataset, batch_size= config.batch_size, shuffle= True, num_workers= config.num_dataset_workers)
         test_dataloader = DataLoader( test_dataset, batch_size= len( test_dataset ), shuffle= False, num_workers= config.num_dataset_workers)
+        neg_dataloader       = DataLoader(train_dataset,batch_size=20,shuffle= True, num_workers= config.num_dataset_workers)
 
         current_best = -1
         best_res = None
-
+       
         for epoch in range( num_epochs ):
 
             avg_loss = 0.0
             self.model.train()
 
             print('\n*****************************************************************************************')
-            for i,batch in enumerate( tqdm(train_dataloader) ):
+            for i,(batch,neg_batch) in enumerate(zip(train_dataloader,neg_dataloader)):
 
                 self.optimizer.zero_grad()
                     
-                batch = { k : v.to( self.device ) for k,v in batch.items() }
+                batch     = { k : v.to( self.device ) for k,v in batch.items() }
+                neg_batch = { k : v.to( self.device ) for k,v in neg_batch.items() }
+                #print(batch)
                 targets = batch[ 'targets' ]
-                targets = pack_padded_sequence( targets, batch['original_review_length'], batch_first= True, enforce_sorted= False)
+                
+                targets = pack_padded_sequence( targets, batch['original_review_length'].to('cpu'), batch_first= True, enforce_sorted= False)
+                
                 targets, _ = pad_packed_sequence( targets, batch_first=True, padding_value= config.PAD )
                 
                 mask = ( targets < config.PAD )
@@ -81,15 +90,18 @@ class Trainer:
 
                 targets = targets.view( -1 ) # concat every instance
                 
-
-                outputs = self.model( batch, mask= mask.unsqueeze(2).float() )
+               
+                outputs = self.model( batch,neg_batch, mask= mask.unsqueeze(2).float() )
+                
                 if self.use_crf:
+                    #print("CRF")
                     loss = outputs
-
+                    
                 else:
+                    #print("NO-CRF")
                     outputs = outputs.view( -1, 3 )
                     loss = self.loss_function( outputs, targets )
-
+                #print(loss)
                 loss.backward()
                 self.optimizer.step()
 
@@ -110,11 +122,15 @@ class Trainer:
         with torch.no_grad():
             self.model.eval()
             print('evaluating')
-            for _,batch in enumerate( test_dataloader ):
-                batch = { k : v.to( self.device ) for k,v in batch.items()  }
-
+            #neg_dataloader       = DataLoader(test_dataloader,batch_size=20,shuffle= True, num_workers= config.num_dataset_workers)
+            for i,(batch) in enumerate(test_dataloader):
+                
+                batch      = { k : v.to( self.device ) for k,v in batch.items()  }
+                #neg_batch  = { k : v.to( self.device ) for k,v in neg_batch.items()  }
+                
                 targets = batch[ 'targets' ]
-                targets = pack_padded_sequence( targets, batch['original_review_length'], batch_first= True, enforce_sorted= False )
+                
+                targets = pack_padded_sequence( targets, batch['original_review_length'].to('cpu'), batch_first= True, enforce_sorted= False )
                 targets,_ = pad_packed_sequence( targets, batch_first= True, padding_value= config.PAD )
                 
                 mask = ( targets < config.PAD )
@@ -128,7 +144,7 @@ class Trainer:
                     _, outputs = self.model( batch, mask= mask, get_predictions= True ) 
                     outputs = outputs.view(-1) # concatenate all predictions
                 else:
-                    outputs = self.model( batch, mask= mask)
+                    outputs = self.model( batch,neg_batch, mask= mask)
                     outputs = outputs.view( -1, self.model.output_dim )
                     outputs = torch.argmax( outputs, dim= 1 )
                 
@@ -149,6 +165,7 @@ class Trainer:
         
         with open( stats_save_path,'w' ) as f:
             if self.num_folds == 1:
+               
                 self._print_args()
                 
                 result = self._train(self.train_dataset, self.test_dataset, num_epochs, model_save_path, stats_save_path)
@@ -160,6 +177,7 @@ class Trainer:
                 f.flush()
 
             else:
+                print("ELSE..")
                 dataset = ConcatDataset( [ self.train_dataset, self.test_dataset ] )
                 dataset_size = len( dataset )
                 test_size = int( dataset_size * 0.2 ) 
@@ -203,5 +221,12 @@ if __name__ == "__main__":
         'hsan': HSAN,
         'decnn' : DECNN
     }
-    trainer = Trainer( models[ config.model ], optimizers[ config.optimizer ], loss_function= nn.NLLLoss() )
+    
+    vocab = Vocab.from_files( [config.dataset_path, config.test_dataset_path], store= config.mapping_file )
+    train_dataset = ReviewDataset(config.dataset_path, preprocessed= False, vocab= vocab)
+    test_dataset = ReviewDataset(config.test_dataset_path, preprocessed= False, vocab= vocab)
+    
+    
+    network =  models[ config.model ]( vocab, embedding_path= config.word_embedding_path, lambda1=config.lambda1,use_crf= config.use_crf ).to(config.device)
+    trainer = Trainer( network, optimizers[ config.optimizer ],train_dataset,test_dataset,config.num_folds, loss_function= nn.NLLLoss() )
     trainer.run( config.num_epochs, config.model_save_path )

@@ -43,7 +43,7 @@ class LSTM(nn.Module):
 
         self.use_crf = use_crf
         if self.use_crf:
-            self.crf = CRF( self.output_dim, batch_first= True )
+            self.crf = CRF( self.output_dim)
         self.drouput_layer = torch.nn.Dropout(p=config.dropout, inplace=True)
         self.weight_init()
 
@@ -129,7 +129,7 @@ class AttentionAspectExtraction(nn.Module):
 
         self.use_crf = use_crf
         if self.use_crf:
-            self.crf = CRF( self.output_dim, batch_first= True )
+            self.crf = CRF( self.output_dim)
 
         self.weight_init()
 
@@ -232,7 +232,7 @@ class GlobalAttentionAspectExtraction(nn.Module):
 
         self.use_crf = use_crf
         if self.use_crf:
-            self.crf = CRF( self.output_dim, batch_first= True )
+            self.crf = CRF( self.output_dim)
 
         self.weight_init()
     
@@ -305,12 +305,50 @@ class GlobalAttentionAspectExtraction(nn.Module):
         if yield_attention_weights:
                 return -loss, global_context_scores
         return x * mask
+class Max_Margin_Loss(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
+        
 
+    def normalise(self, vector):
+        denorm = torch.norm(vector, p=2, dim=-1)
+        denorm = torch.max(torch.tensor(1e-6, dtype=torch.float).to('cuda'), denorm)
+        return vector.div(denorm.unsqueeze(1))
+
+    def forward(self, *_input, **kwargs):
+       
+        y_true, neg_samples, y_predicted = _input
+      
+        batch_size, _ = y_true.shape
+        neg_sample_size, _ = neg_samples.shape
+        #n_aspects, _ = aspect_embd.shape
+        
+        zs = self.normalise(y_true)
+        
+        ni = self.normalise(neg_samples)
+        rs = self.normalise(y_predicted)
+        
+        ni = ni.repeat(batch_size, 1).view(batch_size, neg_sample_size, -1)
+       
+        zs_rs = torch.sum(torch.mul(zs, rs), dim=1, keepdims=True)
+       
+        rs_ni = torch.sum(torch.mul(rs.unsqueeze(1).repeat(1, neg_sample_size, 1),
+                                    ni), dim=2, keepdims=True)
+      
+        loss = torch.sum(torch.max(torch.tensor(0, dtype=torch.float).to('cuda'),
+                                   torch.tensor(1, dtype=torch.float).to('cuda') -
+                                   zs_rs.unsqueeze(1).repeat(1, neg_sample_size, 1) +
+                                   rs_ni), dim=1)
+        
+        loss = loss
+        
+        return torch.mean(loss)
 class HSAN(nn.Module):
     
-    def __init__(self, vocab, embedding_dim= config.word_embeding_dim, hidden_dim= config.hidden_dim, output_dim= len( config.bio_dict ), pos_dim= -1, use_crf= False, **kwargs):
+    def __init__(self, vocab, embedding_dim= config.word_embeding_dim, loss_fn=Max_Margin_Loss,lambda1=0, hidden_dim= config.hidden_dim, output_dim= len( config.bio_dict ), pos_dim= -1, use_crf= False, **kwargs):
         super(HSAN, self).__init__()
-    
+        self.loss_fn = loss_fn()
+        self.lambda1 = lambda1
         self.embedding_dim = embedding_dim 
         self.hidden_dim = hidden_dim
         self.embedding = nn.Embedding( len( vocab ), self.embedding_dim )
@@ -346,9 +384,12 @@ class HSAN(nn.Module):
         # self.weight_m = nn.Parameter( torch.Tensor( self.hidden_dim * 4, self.hidden_dim * 4 ) )
         self.bias_m = nn.Parameter( torch.Tensor( 1 ) )
         
-        self.w_r = nn.Linear( self.hidden_dim * 2, output_dim, bias= False )
+        self.w_r = nn.Linear( (self.hidden_dim * 2), output_dim, bias= False )
+        
+        self.latent      = nn.Linear( self.hidden_dim*2 , 20, bias= False )
+        self.reconstruct = nn.Linear( 20,self.hidden_dim*2 , bias= False )
         # self.w_r = nn.Linear( self.hidden_dim * 4, output_dim, bias= True )
-
+ 
         self.use_crf = use_crf
         if self.use_crf:
             self.crf = CRF( self.output_dim, batch_first= True )
@@ -367,7 +408,7 @@ class HSAN(nn.Module):
                                                         save_weight_path= config.embedding_save_path ))
         self.embedding.weight.requires_grad = False
 
-    def forward( self, inputs, mask= None, get_predictions= False, yield_attention_weights= False ):
+    def forward( self, inputs,inputs_neg=None, mask= None, get_predictions= False, yield_attention_weights= False ):
         
         if mask is None:
             mask = torch.ones((inputs['review'].shape[0], inputs['review'].shape[1], 1), dtype= torch.uint8, device=self.device) # shape ( batch_size, sequence_length, 1 )
@@ -375,24 +416,70 @@ class HSAN(nn.Module):
         softmax_mask = (mask - 1) * 1e10
 
         review = inputs[ 'review' ]
-        review_lengths = inputs['original_review_length']
+        review_lengths = inputs['original_review_length'].to('cpu')
 
         review = self.embedding( review )
+        
+        
         if self.pos_dim != -1:
             review = torch.cat([review, inputs['pos_tags']], dim= 2)
         review = pack_padded_sequence(review, review_lengths, batch_first= True, enforce_sorted= False)
-
+        
+        
         if self.rnn_model == 'lstm':
             review_h, ( final_hidden_state, _) = self.encoder( review )
         elif self.rnn_model == 'gru':
             review_h, final_hidden_state = self.encoder( review )
-
-        review_h, _ = pad_packed_sequence( review_h, batch_first= True, padding_value= 0 ) # shape: ( batch_size, seq_len, hidden_dim )
+            
         
-        ( batch_size, seq_len, hidden_dim ) = review_h.shape
+            
+        review_h, _         = pad_packed_sequence( review_h, batch_first= True, padding_value= 0 ) # shape: ( batch_size, seq_len, hidden_dim )
+        
+        
+        #final_hidden_state     = torch.cat((final_hidden_state[-4,:,:], final_hidden_state[-3,:,:],final_hidden_state[-2,:,:],final_hidden_state[-1,:,:]), dim=1)
+        #final_hidden_state_neg = torch.cat((final_hidden_state_neg[-4,:,:], final_hidden_state_neg[-3,:,:],final_hidden_state_neg[-2,:,:],final_hidden_state_neg[-1,:,:]), dim=1)
+        
+       
+        
+        
+        
+        ( batch_size, seq_len, hidden_dim ) = review_h.shape 
         final_hidden_state = final_hidden_state.view(config.num_layers, 2 if config.bidirectiional else 1, batch_size, hidden_dim // config.num_layers) # (num_layers, num_directions, batch, hidden_size)
         final_hidden_state = final_hidden_state.transpose(0,2) # (batch, num_directions, num_layers, hidden_size)
-        final_hidden_state = final_hidden_state[:,:,-1,:].reshape(batch_size,-1,1) # (batch, num_directions * hidden_size, 1)
+        final_hidden_state = final_hidden_state[:,:,-1,:].reshape(batch_size,-1,1) # (batch, num_directions * hidden_size, 1) 
+        
+        
+        if get_predictions==False:
+            review_neg = inputs_neg[ 'review' ]
+            review_lengths_neg = inputs_neg['original_review_length'].to('cpu')
+            review_neg = self.embedding( review_neg )
+            
+            review_neg = pack_padded_sequence(review_neg, review_lengths_neg, batch_first= True, enforce_sorted= False)
+            
+            if self.rnn_model == 'lstm':
+                review_neg_h, ( final_hidden_state_neg, _) = self.encoder( review_neg )
+            elif self.rnn_model == 'gru':
+                review_neg_h, final_hidden_state_neg = self.encoder( review_neg )
+            
+            
+            
+            review_neg_h, _        = pad_packed_sequence( review_neg_h, batch_first= True, padding_value= 0 )
+            final_hidden_state_neg = final_hidden_state_neg.view(config.num_layers, 2 if config.bidirectiional else 1, 20, hidden_dim // config.num_layers) # (num_layers, num_directions, batch, hidden_size)
+            final_hidden_state_neg = final_hidden_state_neg.transpose(0,2) # (batch, num_directions, num_layers, hidden_size)
+            final_hidden_state_neg = final_hidden_state_neg[:,:,-1,:].reshape(20,-1,1) # (batch, num_directions * hidden_size, 1)
+            orig_sent              = final_hidden_state.squeeze(2)
+            neg_sent =final_hidden_state_neg.squeeze(2)
+            #print(orig_sent.shape,neg_sent.shape)
+            latent       = self.latent( orig_sent)
+            reconst_embd = self.reconstruct(latent)
+            unsupervised_loss                                                                  = self.loss_fn( 
+                                                                                                               orig_sent,
+                                                                                                                neg_sent,
+                                                                                                                reconst_embd
+                                                                                                             )  
+        
+            
+        
 
         # global_context_scores = torch.bmm( self.w_a( review_h ), final_hidden_state )
         global_context_scores = torch.bmm( self.w_a( review_h ), final_hidden_state ) + softmax_mask
@@ -409,7 +496,8 @@ class HSAN(nn.Module):
         alpha = torch.nn.functional.softmax( alpha , dim= 2 ) # ( batch_size, sequence_length, attention_scores )
 
         s_i = torch.bmm( alpha, review_h )
-        
+            
+            
         x = self.w_r( s_i ).contiguous() 
         
         
@@ -418,14 +506,17 @@ class HSAN(nn.Module):
             
             mask = mask.squeeze_().type( torch.uint8 )
             loss = self.crf( x, targets, mask = mask )
+            
             if get_predictions:
                 temp = self.crf.decode( x )
                 if yield_attention_weights:
                     return - loss, torch.tensor( np.array( temp ) , dtype= torch.long, device= config.device), global_context_scores, alpha
                 return - loss, torch.tensor( np.array( temp ) , dtype= torch.long, device= config.device)
             if yield_attention_weights:
-                return - loss, global_context_scores, alpha
-            return - loss 
+                total_loss = -loss+self.lambda1*unsupervised_loss
+                return - total_loss, global_context_scores, alpha
+            total_loss = -loss+self.lambda1*unsupervised_loss
+            return  total_loss
 
         x = nn.functional.log_softmax(x, dim= 2)
         if yield_attention_weights:
@@ -457,7 +548,7 @@ class DECNN(nn.Module):
         self.use_crf = use_crf
 
         if self.use_crf:
-            self.crf = CRF( self.output_dim, batch_first= True )
+            self.crf = CRF( self.output_dim)
 
         self.weight_init()
     
